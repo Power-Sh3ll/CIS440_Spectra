@@ -2,63 +2,74 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logon</title>
-    <link rel="stylesheet" href="css/logon.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spectra – Log in</title>
+
+  <!-- Advent Pro font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/logon.css" />
 </head>
 
-<body
-    style="transform: scale(1.5); transform-origin: top left; overflow-x: hidden; width: 66.67vw; height: 66.67vh;">
-    <div class="container">
-        <div style="display: flex; flex-direction: row; align-items: center;">
-            <img src="Assets/Logo.svg" alt="Spectra Logo" width="200px">
-            <h1>Spectra</h1>
-        </div>
-        <div class="tab">
-            <button class="tab-button active" id="login-tab">Logon</button>
-            <button class="tab-button" id="create-account-tab">Create Account</button>
-        </div>
+<body>
+  <div class="container">
+    <!-- Logo on left -->
+    <img src="Assets/Logo.svg" alt="Spectra Logo">
 
-        <div id="form-container">
-            <!-- Logon Form -->
-            <form id="logon-form" class="active-form">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email" placeholder="Enter your email" required>
+    <!-- Form section -->
+    <div class="form-wrapper">
+      <h1>Spectra</h1>
 
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" placeholder="Enter your password" required>
+      <!-- Tabs -->
+      <div class="tab">
+        <button class="tab-button active" id="login-tab">Logon</button>
+        <button class="tab-button" id="create-account-tab">Create Account</button>
+      </div>
 
-                <button type="submit" class="button">Logon</button>
-            </form>
+      <!-- Forms -->
+      <div id="form-container">
+        <!-- Logon Form -->
+        <form id="logon-form" class="active-form">
+          <label for="login-email">Email:</label>
+          <input type="email" id="login-email" placeholder="Enter your email" required>
 
-            <!-- Create Account Form -->
-            <form id="create-account-form">
-                <label for="create-email">Email:</label>
-                <input type="email" id="create-email" placeholder="Enter your email" required>
+          <label for="login-password">Password:</label>
+          <input type="password" id="login-password" placeholder="Enter your password" required>
 
-                <label for="create-password">Password:</label>
-                <input type="password" id="create-password" placeholder="Create your password" required>
+          <button type="submit" class="button">Logon</button>
+        </form>
 
-                <label for="create-first-name">First Name:</label>
-                <input type="text" id="create-first-name" placeholder="Enter your first name" required>
+        <!-- Create Account Form -->
+        <form id="create-account-form">
+          <label for="create-email">Email:</label>
+          <input type="email" id="create-email" placeholder="Enter your email" required>
 
-                <label for="create-last-name">Last Name:</label>
-                <input type="text" id="create-last-name" placeholder="Enter your last name" required>
+          <label for="create-password">Password:</label>
+          <input type="password" id="create-password" placeholder="Create your password" required>
 
-                <label for="create-date-of-birth">Date of Birth:</label>
-                <input type="date" id="create-date-of-birth" required>
+          <label for="create-first-name">First Name:</label>
+          <input type="text" id="create-first-name" placeholder="Enter your first name" required>
 
-                <button type="submit" class="button">Create Account</button>
-            </form>
+          <label for="create-last-name">Last Name:</label>
+          <input type="text" id="create-last-name" placeholder="Enter your last name" required>
 
+          <label for="create-date-of-birth">Date of Birth:</label>
+          <input type="date" id="create-date-of-birth" required>
 
+          <button type="submit" class="button">Create Account</button>
+        </form>
+      </div>
 
-            <p id="message" class="message"></p>
-        </div>
+      <!-- Messages -->
+      <p id="message" class="message"></p>
     </div>
+  </div>
 
-    <script src="js/logon.js"></script>
+  <script src="js/logon.js"></script>
 </body>
 
 </html>

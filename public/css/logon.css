@@ -1,89 +1,152 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #d99fe3;
-    margin: 0;
-    padding: 0;
+:root{
+  --cream:#f3f9d2;          
+  --beaver:#ab8476;         
+  --indigo-dye:#2b4162;    
+  --dartmouth-green:#0b6e4f;
+  --blood-red:#621708;     
+
+  --text:#1f2430;
+  --muted:#6b7a99;
+  --border:#e7ecf3;
+  --radius:18px;
+  --shadow:0 12px 28px rgba(43,65,98,.12);
 }
 
+/* Global */
+*{box-sizing:border-box;}
+html, body{
+  height:100%;
+  margin:0;
+  color:var(--text);
+  font-family:"Advent Pro", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(80% 80% at 10% 10%, rgba(171,132,118,0.25) 0%, rgba(171,132,118,0) 70%),
+    radial-gradient(90% 90% at 90% 30%, rgba(11,110,79,0.25) 0%, rgba(11,110,79,0) 65%),
+    var(--cream);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* Container */
 .container {
-    max-width: 400px;
-    margin: 5% auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  max-width:1200px;
+  width:90%;
+  background: #fff;
+  border-radius:20px;
+  box-shadow:0 12px 28px rgba(43,65,98,.12);
+  overflow:hidden;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
+/* Logo Section */
+.container img {
+  width:250px;
+  height:auto;
+  padding:20px;
+  object-fit:contain;
 }
 
-.tab {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
+/* Form Section */
+.form-wrapper {
+  flex:1;
+  padding:40px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 }
 
-.tab-button {
-    flex: 1;
-    padding: 10px 0;
-    border: none;
-    cursor: pointer;
-    background-color: #ddd;
+/* Title */
+.form-wrapper h1 {
+  margin:0 0 20px 0;
+  font-size:36px;
+  text-align:center;
 }
 
-.tab-button.active {
-    background-color: #2B4162;
-    color: white;
+/* Tabs */
+.tab{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  padding:6px;
+  border-radius:999px;
+  background:#eef2f8;
+  margin:16px 0 20px;
+}
+.tab-button{
+  border:0; padding:10px 14px; border-radius:999px;
+  background:transparent; color:var(--muted);
+  font-weight:800; cursor:pointer; transition:all .2s ease;
+}
+.tab-button.active{
+  color:#fff;
+  background: linear-gradient(140deg, var(--indigo-dye), var(--beaver));
+  box-shadow:0 6px 18px rgba(43,65,98,.25);
 }
 
+/* Forms */
 form {
-    display: none;
+  display:none;
 }
-
 form.active-form {
-    display: block;
+  display:block;
 }
 
 label {
-    display: block;
-    margin: 10px 0 5px;
+  display:block;
+  margin:10px 0 5px;
 }
 
 input {
-    width: 100%;
-    max-width: 400px;
-    padding: 10px 0;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width:100%;
+  padding:10px 12px;
+  margin-bottom:10px;
+  border:1px solid #ccc;
+  border-radius:5px;
+  font-size:16px;
 }
 
-.button {
-    width: 100%;
-    padding: 10px;
-    background-color: #2B4162;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+/* Buttons */
+.button{
+  width:100%;
+  margin-top:10px;
+  padding:14px 16px;
+  border:0;
+  border-radius:14px;
+  color:#fff;
+  font-weight:900;
+  letter-spacing:.2px;
+  background: linear-gradient(135deg, var(--indigo-dye), var(--dartmouth-green));
+  box-shadow:0 12px 26px rgba(11,110,79,.25);
+  cursor:pointer;
+  transition:transform .06s, filter .2s, box-shadow .2s;
 }
+.button:hover{ filter:brightness(1.05); box-shadow:0 16px 30px rgba(11,110,79,.28); }
+.button:active{ transform:translateY(1px); }
 
-.button:hover {
-    background-color: #ACC8E5;
-}
+/* Helper text / links */
+.message{ margin-top:14px; text-align:center; font-size:14px; color:var(--muted); }
+.message a{ color:var(--indigo-dye); font-weight:800; text-decoration:none; }
+.message a:hover{ text-decoration:underline; }
 
-.message {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 14px;
-}
+/* States */
+.success{ color: var(--dartmouth-green); }
+.error{ color: var(--blood-red); }
 
-.success {
-    color: green;
-}
-
-.error {
-    color: red;
+/* Responsive */
+@media (max-width: 900px) {
+  .container {
+    flex-direction:column;
+    width:90%;
+  }
+  .container img {
+    width:150px;
+    padding:10px;
+  }
+  .form-wrapper h1 {
+    font-size:28px;
+  }
 }

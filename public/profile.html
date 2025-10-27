@@ -1,59 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Spectra</title>
-    <link rel="stylesheet" href="css/profile.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile - Spectra</title>
+
+  <!-- Advent Pro font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/profile.css" />
 </head>
-
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <img src="Assets/Logo.svg" alt="Spectra Logo" width="50px">
-                <h1>Spectra Profile</h1>
-                <button id="logout-btn" class="logout-button">Logout</button>
-            </div>
-        </header>
+  <!-- logo fixed top-left -->
+  <img src="/Assets/Logo.svg" alt="Spectra Logo" class="logo">
 
-        <div class="profile-content">
-            <div class="profile-card">
-                <h2>Welcome, <span id="user-name">User</span>!</h2>
-                
-                <div class="profile-info">
-                    <div class="info-item">
-                        <label>Email:</label>
-                        <span id="user-email">Loading...</span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <label>First Name:</label>
-                        <span id="user-first-name">Loading...</span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <label>Last Name:</label>
-                        <span id="user-last-name">Loading...</span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <label>Date of Birth:</label>
-                        <span id="user-dob">Loading...</span>
-                    </div>
-                </div>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>Spectra Profile</h1>
+        <button id="logout-btn" class="logout-button">Logout</button>
+      </div>
+    </header>
 
-                <div class="profile-actions">
-                    <button id="edit-profile-btn" class="button">Edit Profile</button>
-                    <button id="go-to-dashboard-btn" class="button secondary">Go to Dashboard</button>
-                    <button id="view-leaderboard-btn" class="button secondary">View Leaderboard</button>
-                </div>
-            </div>
+    <div class="profile-content">
+      <div class="profile-card" role="region" aria-label="Profile card">
+        <div class="profile-top">
+          <div class="avatar-wrap" aria-hidden="false">
+            <img id="avatar-img" class="avatar-img" src="" alt="User avatar" onerror="this.style.display='none'">
+            <div id="avatar-initials" class="avatar-initials" aria-hidden="true">U</div>
+          </div>
+
+          <div class="name-block">
+            <h2>Welcome, <span id="user-name">User</span>!</h2>
+            <div class="small-muted" id="user-email-top">Loading...</div>
+          </div>
         </div>
+
+        <div class="profile-info" id="profile-info">
+          <div class="info-item">
+            <label>Email:</label>
+            <span id="user-email">Loading...</span>
+          </div>
+          <div class="info-item">
+            <label>First Name:</label>
+            <span id="user-first-name">Loading...</span>
+          </div>
+          <div class="info-item">
+            <label>Last Name:</label>
+            <span id="user-last-name">Loading...</span>
+          </div>
+          <div class="info-item">
+            <label>Date of Birth:</label>
+            <span id="user-dob">Loading...</span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button id="edit-profile-btn" class="button">Edit Profile</button>
+          <button id="go-to-dashboard-btn" class="button secondary">Go to Dashboard</button>
+          <button id="view-leaderboard-btn" class="button secondary">View Leaderboard</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script src="js/profile.js"></script>
+  <script src="/js/profile.js"></script>
 </body>
-
 </html>
