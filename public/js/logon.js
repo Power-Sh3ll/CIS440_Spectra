@@ -21,31 +21,38 @@ createAccountTab.addEventListener('click', () => {
 
 // Logon form submission
 logonForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+  event.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
 
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-        const result = await response.json();
-        if (response.ok) {
-            localStorage.setItem('jwtToken', result.token);
-            window.location.href = '/profile';
-        } else {
-            messageEl.textContent = result.message;
-            messageEl.classList.add('error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        messageEl.textContent = 'An error occurred. Please try again later.';
-        messageEl.classList.add('error');
+    const result = await response.json();
+
+    if (response.ok) {
+      // ✅ Add these 3 lines inside the if block:
+      localStorage.setItem('jwtToken', result.token);
+      localStorage.setItem('token', result.token);   // <-- ensures footprint.js finds it
+      window.location.href = '/profile';             // <-- keep this as it is
+
+    } else {
+      messageEl.textContent = result.message;
+      messageEl.classList.add('error');
     }
+
+  } catch (error) {
+    console.error('Error:', error);
+    messageEl.textContent = 'An error occurred. Please try again later.';
+    messageEl.classList.add('error');
+  }
 });
+
+
 
 // Create account form submission
 createAccountForm.addEventListener('submit', async (event) => {

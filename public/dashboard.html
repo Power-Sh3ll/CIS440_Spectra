@@ -1,72 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- dashboard.html (trimmed) -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
-    <div class="container">
-       <!-- Activity Footprint button -->
-<div class="header">
-  <h1>Users</h1>
-  <div>
-    <a href="/footprint.html" style="text-decoration:none;">
-      <button
-        type="button"
-        style="
-          background: linear-gradient(135deg, #7b5cff, #5a4ab8);
-          color: #fff;
-          border: none;
-          padding: 10px 22px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 600;
-          font-size: 15px;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-          transition: all 0.2s ease;
-          margin-right: 8px;
-        "
-        onmouseover="this.style.background='linear-gradient(135deg,#6c4df0,#4a3ec0)'"
-        onmouseout="this.style.background='linear-gradient(135deg,#7b5cff,#5a4ab8)'"
-        onmousedown="this.style.transform='scale(0.97)'"
-        onmouseup="this.style.transform='scale(1)'"
-      >
-        Activity Footprint
-      </button>
-    </a>
-
-    <button id="refreshButton">Refresh List</button>
-    <button id="logoutButton">Log Out</button>
-  </div>
-</div>
-
-<div class="user-list" id="userList"></div>
-
-
-        <!-- Activity Footprint section -->
-        <section class="card" style="margin-top: 2rem;">
-            <h2>Activity Footprint</h2>
-            <form id="fp-form">
-            <label data-act="steps">Steps <input type="number" id="fp-steps" min="0" step="1"></label>
-            <label data-act="walk">Walk (hours) <input type="number" id="fp-walk" min="0" step="0.1"></label>
-            <label data-act="run">Run (hours) <input type="number" id="fp-run" min="0" step="0.1"></label>
-            <label data-act="cycle">Cycle (hours) <input type="number" id="fp-cycle" min="0" step="0.1"></label>
-            <label data-act="hike">Hike (hours) <input type="number" id="fp-hike" min="0" step="0.1"></label>
-            <label data-act="swim">Swim (hours) <input type="number" id="fp-swim" min="0" step="0.1"></label>
-
-                <button type="submit">Save & Recalculate</button>
-            </form>
-            <div id="fp-msg"></div>
-            <div id="fp-summary" style="margin-top:1rem"></div>
-        </section>
-        <!-- End of Activity Footprint section -->
+  <div class="container">
+    <div class="header">
+      <h1>Users</h1>
+      <div>
+        <a href="/footprint.html" style="text-decoration:none;">
+          <!-- keep your gradient button or switch to a CSS class later -->
+          <button type="button" ...>Activity Footprint</button>
+        </a>
+        <button id="refreshButton">Refresh List</button>
+        <button id="logoutButton">Log Out</button>
+      </div>
     </div>
 
-    <!-- Load scripts in correct order -->
-    <script src="/js/datamodel.js"></script>
-    <script src="/js/dashboard.js"></script>
-    <script src="/js/footprint.js"></script> 
+    <div class="user-list" id="userList"></div>
+  </div>
+
+  <script src="/js/datamodel.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <!-- removed footprint.js -->
 </body>
-</html>
