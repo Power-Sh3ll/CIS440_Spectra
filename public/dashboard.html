@@ -1,72 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="/css/dashboard.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard</title>
+
+  <!-- Advent Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
-    <div class="container">
-       <!-- Activity Footprint button -->
-<div class="header">
-  <h1>Users</h1>
-  <div>
-    <a href="/footprint.html" style="text-decoration:none;">
-      <button
-        type="button"
-        style="
-          background: linear-gradient(135deg, #7b5cff, #5a4ab8);
-          color: #fff;
-          border: none;
-          padding: 10px 22px;
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 600;
-          font-size: 15px;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-          transition: all 0.2s ease;
-          margin-right: 8px;
-        "
-        onmouseover="this.style.background='linear-gradient(135deg,#6c4df0,#4a3ec0)'"
-        onmouseout="this.style.background='linear-gradient(135deg,#7b5cff,#5a4ab8)'"
-        onmousedown="this.style.transform='scale(0.97)'"
-        onmouseup="this.style.transform='scale(1)'"
-      >
-        Activity Footprint
-      </button>
-    </a>
-
-    <button id="refreshButton">Refresh List</button>
-    <button id="logoutButton">Log Out</button>
-  </div>
-</div>
-
-<div class="user-list" id="userList"></div>
-
-
-        <!-- Activity Footprint section -->
-        <section class="card" style="margin-top: 2rem;">
-            <h2>Activity Footprint</h2>
-            <form id="fp-form">
-            <label data-act="steps">Steps <input type="number" id="fp-steps" min="0" step="1"></label>
-            <label data-act="walk">Walk (hours) <input type="number" id="fp-walk" min="0" step="0.1"></label>
-            <label data-act="run">Run (hours) <input type="number" id="fp-run" min="0" step="0.1"></label>
-            <label data-act="cycle">Cycle (hours) <input type="number" id="fp-cycle" min="0" step="0.1"></label>
-            <label data-act="hike">Hike (hours) <input type="number" id="fp-hike" min="0" step="0.1"></label>
-            <label data-act="swim">Swim (hours) <input type="number" id="fp-swim" min="0" step="0.1"></label>
-
-                <button type="submit">Save & Recalculate</button>
-            </form>
-            <div id="fp-msg"></div>
-            <div id="fp-summary" style="margin-top:1rem"></div>
-        </section>
-        <!-- End of Activity Footprint section -->
+  <!-- TOP NAV / HEADER -->
+  <header class="topbar" role="banner">
+    <div class="topbar__left">
+      <a href="/dashboard" class="brand" aria-label="Home">
+        <img src="/Assets/Logo.png" alt="Spectra logo" class="brand__logo">
+        <span class="brand__name">Spectra</span>
+      </a>
     </div>
 
-    <!-- Load scripts in correct order -->
-    <script src="/js/datamodel.js"></script>
-    <script src="/js/dashboard.js"></script>
-    <script src="/js/footprint.js"></script> 
+    <div class="topbar__center">
+      <div class="segmented" role="tablist" aria-label="View switch">
+        <button id="activityTab" class="segmented__btn segmented__btn--active" role="tab" aria-selected="true">Fitness</button>
+        <button id="carbonTab" class="segmented__btn" role="tab" aria-selected="false">Carbon</button>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <nav class="quick-nav" aria-label="quick navigation">
+        <button id="profileBtn" class="btn btn--ghost">Profile</button>
+        <button id="leaderboardBtn" class="btn btn--ghost">Leaderboard</button>
+        <button id="challengesBtn" class="btn btn--ghost">Challenges</button>
+      </nav>
+
+      <div class="actions">
+        <button id="refreshButton" class="btn btn--success">Refresh</button>
+        <button id="logoutButton" class="btn btn--primary">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container" role="main">
+    <div class="dashboard-header">
+      <h1 class="page-title">Today's Activity</h1>
+      <!-- status toast -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+
+      <div class="dashboard-actions">
+        <button id="edit-values-btn" class="btn btn--ghost">Edit Values</button>
+        <button id="edit-goals-btn"  class="btn btn--ghost">Edit Goals</button>
+        <span class="today-date" id="todayDate"></span>
+      </div>
+    </div>
+
+    <!-- FITNESS VIEW (cards) -->
+    <section id="fitnessView" class="cards-grid" aria-live="polite">
+      <article class="stat-card" id="card-steps">
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">👣</div>
+          <div>
+            <div class="stat-label">Steps</div>
+            <div class="stat-value"><span id="stepsValue">0</span> / <span id="stepsTarget">10,000</span></div>
+          </div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-bg"><div class="stat-bar" id="stepsBar"></div></div>
+        </div>
+      </article>
+
+      <article class="stat-card" id="card-calories">
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">🔥</div>
+          <div>
+            <div class="stat-label">Calories</div>
+            <div class="stat-value"><span id="calValue">0</span> / <span id="calTarget">650</span></div>
+          </div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-bg"><div class="stat-bar" id="calBar"></div></div>
+        </div>
+      </article>
+
+      <article class="stat-card" id="card-distance">
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">📍</div>
+          <div>
+            <div class="stat-label">Distance</div>
+            <div class="stat-value"><span id="distValue">0</span> / <span id="distTarget">8</span> km</div>
+          </div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-bg"><div class="stat-bar" id="distBar"></div></div>
+        </div>
+      </article>
+
+      <article class="stat-card" id="card-active">
+        <div class="stat-left">
+          <div class="stat-icon" aria-hidden="true">⏱️</div>
+          <div>
+            <div class="stat-label">Active Minutes</div>
+            <div class="stat-value"><span id="minValue">0</span> / <span id="minTarget">60</span> min</div>
+          </div>
+        </div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-bg"><div class="stat-bar" id="minBar"></div></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- CARBON VIEW (placeholder) -->
+    <section id="carbonView" class="cards-grid hidden">
+      <div class="carbon-placeholder">
+        <h2>Carbon view</h2>
+        <p>Carbon metrics and charts go here.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODALS -->
+  <div id="modal-values" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="valuesTitle">
+    <div class="modal__card">
+      <h3 id="valuesTitle">Edit Values</h3>
+      <form id="form-values" class="form-grid">
+        <label>Steps <input type="number" id="val-steps" min="0" inputmode="numeric" /></label>
+        <label>Distance (km) <input type="number" step="0.1" id="val-distance" min="0" inputmode="decimal" /></label>
+        <label>Minutes <input type="number" id="val-minutes" min="0" inputmode="numeric" /></label>
+        <label>Calories <input type="number" id="val-calories" min="0" inputmode="numeric" /></label>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" data-close-values>Cancel</button>
+          <button type="submit" class="btn btn--primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-goals" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="goalsTitle">
+    <div class="modal__card">
+      <h3 id="goalsTitle">Edit Goals</h3>
+      <form id="form-goals" class="form-grid">
+        <label>Steps Goal <input type="number" id="goal-steps" min="1" inputmode="numeric" /></label>
+        <label>Distance Goal (km) <input type="number" step="0.1" id="goal-distance" min="0.1" inputmode="decimal" /></label>
+        <label>Minutes Goal <input type="number" id="goal-minutes" min="1" inputmode="numeric" /></label>
+        <label>Calories Goal <input type="number" id="goal-calories" min="1" inputmode="numeric" /></label>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" data-close-goals>Cancel</button>
+          <button type="submit" class="btn btn--primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/datamodel.js"></script>
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>

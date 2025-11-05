@@ -114,3 +114,22 @@ header {
 .button{ padding:16px 36px; border-radius:28px; font-weight:800; cursor:pointer; border:0; color:#fff; background: linear-gradient(135deg, var(--indigo-dye), var(--dartmouth-green)); font-size:18px; transition: all .25s ease; }
 .button:hover{ transform:translateY(-2px); box-shadow:0 12px 36px rgba(11,110,79,0.12); }
 .button.secondary{ background: linear-gradient(135deg, #6c757d, #4e5558); }
+
+/* Fix for Activity Footprint link button */
+.profile-actions a.button {
+  text-decoration: none;        /* remove underline */
+  display: inline-block;        /* behaves like a button */
+  color: #fff;                  /* same text color */
+  font-family: inherit;         /* same font as others */
+  font-weight: 800;             /* match bold weight */
+  text-align: center;
+  padding: 16px 36px;           /* match .button padding */
+  border-radius: 28px;
+  background: linear-gradient(135deg, #6c757d, #4e5558); /* same as .secondary */
+  box-shadow: 0 10px 26px rgba(43,65,98,0.07);
+  transition: all 0.25s ease;
+}
+.profile-actions a.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(11,110,79,0.12);
+}

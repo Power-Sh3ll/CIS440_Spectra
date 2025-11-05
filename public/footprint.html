@@ -1,201 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Activity Footprint</title>
-  <link rel="stylesheet" href="/css/dashboard.css" />
-  <style>
-    :root{
-      --card:#fff;
-      --line:#dcdcdc; /* soft border */
-      --text:#111827;
-      --muted:#6b7280;
-      --bg:#f4f4f4;
-    }
-
-    body{
-      font-family: Arial, sans-serif;
-      background-color:var(--bg);
-      margin:0;
-      padding:0;
-    }
-
-    .container{
-      max-width:1060px;
-      margin:2rem auto;
-      padding:0 1rem 2rem; /* bottom padding adds room below */
-    }
-
-    .header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:.75rem;
-      margin-bottom:1.5rem; /* ↑ more space so buttons don’t touch the top card */
-    }
-
-    .actions{ display:flex; gap:.5rem; flex-wrap:wrap; }
-
-    .backlink{
-      text-decoration:none;
-      padding:.5rem .8rem;
-      border:1px solid var(--line);
-      border-radius:8px;
-      color:var(--text);
-      background:#fff;
-    }
-
-    #logoutButton{
-      padding:.5rem .9rem;
-      border:0;
-      border-radius:8px;
-      background:#3b82f6;
-      color:#fff;
-      cursor:pointer;
-    }
-    #logoutButton:hover{ background:#2563eb; }
-
-    .card{
-      background:var(--card);
-      border:0.85px solid var(--line);
-      border-radius:12px;
-      padding:1rem;
-      box-shadow:0 1px 4px rgba(0,0,0,.05);
-    }
-
-    /* add comfortable spacing between stacked cards (form -> summary) */
-    .card + .card{ margin-top:24px; }
-
-    /* ===== form layout ===== */
-    #fp-form{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width: 900px){
-      #fp-form{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-    }
-    @media (max-width: 600px){
-      #fp-form{ grid-template-columns: 1fr; }
-    }
-
-    .field{
-      display:flex;
-      align-items:center;
-      gap:.6rem;
-      padding:.75rem .9rem;
-      border:0.6px solid var(--line);
-      border-radius:10px;
-      background:#fafafa;
-      box-shadow:0 0 2px rgba(0,0,0,0.02);
-      min-height:68px;         
-    }
-
-    .field .label{ font-weight:600; color:var(--text); white-space:nowrap; line-height:1.2; }
-    .field .sub{ color:var(--muted); font-weight:500; white-space:nowrap; line-height:1.1; }
-
-    .field input{
-      margin-left:auto;
-      width:150px;              
-      max-width:50vw;
-      padding:.5rem .6rem;
-      border:0.6px solid var(--line);
-      border-radius:8px;
-      background:#fff;
-    }
-
-    /* submit spans full row */
-    #fp-form .actions-row{
-      grid-column:1 / -1;
-      display:flex;
-      gap:.6rem;
-      flex-wrap:wrap;
-      justify-content:flex-start;
-      margin-top:.25rem;
-    }
-
-    #fp-form button[type="submit"]{
-      padding:.65rem 1rem;
-      border:0;
-      border-radius:10px;
-      cursor:pointer;
-      background:#111827;
-      color:#fff;
-      font-weight:600;
-      transition:background 0.2s ease;
-    }
-    #fp-form button[type="submit"]:hover{ background:#374151; }
-
-    #fp-msg{ margin-top:.5rem; font-weight:600; }
-
-    #fp-summary{ margin-top:.5rem; line-height:1.55; }
-  </style>
+  <link rel="stylesheet" href="/css/footprint.css">
 </head>
-
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Activity Footprint</h1>
-      <div class="actions">
-        <a class="backlink" href="/dashboard">← Back to Dashboard</a>
-        <button id="logoutButton">Log Out</button>
-      </div>
+  <div class="shell">
+    <!-- Keep toolbar Back + Logout -->
+    <div class="toolbar">
+      <a href="/profile.html" class="btn secondary">← Back to Profile</a>
+      <a href="/logon.html" class="btn" id="logoutLink">Log Out</a>
     </div>
 
-    <section class="card">
-      <form id="fp-form">
-        <!-- Steps -->
-        <label class="field" data-act="steps">
-          <span><span class="label">Steps</span></span>
-          <input type="number" id="fp-steps" min="0" step="1" />
-        </label>
-
-        <!-- Walk -->
-        <label class="field" data-act="walk">
-          <span><span class="label">Walk</span> <span class="sub">(hours)</span></span>
-          <input type="number" id="fp-walk" min="0" step="0.1" />
-        </label>
-
-        <!-- Run -->
-        <label class="field" data-act="run">
-          <span><span class="label">Run</span> <span class="sub">(hours)</span></span>
-          <input type="number" id="fp-run" min="0" step="0.1" />
-        </label>
-
-        <!-- Cycle -->
-        <label class="field" data-act="cycle">
-          <span><span class="label">Cycle</span> <span class="sub">(hours)</span></span>
-          <input type="number" id="fp-cycle" min="0" step="0.1" />
-        </label>
-
-        <!-- Hike -->
-        <label class="field" data-act="hike">
-          <span><span class="label">Hike</span> <span class="sub">(hours)</span></span>
-          <input type="number" id="fp-hike" min="0" step="0.1" />
-        </label>
-
-        <!-- Swim -->
-        <label class="field" data-act="swim">
-          <span><span class="label">Swim</span> <span class="sub">(hours)</span></span>
-          <input type="number" id="fp-swim" min="0" step="0.1" />
-        </label>
-
-        <!-- Submit -->
-        <div class="actions-row">
-          <button type="submit">Save & Recalculate</button>
-        </div>
-      </form>
-      <div id="fp-msg"></div>
+    <!-- Hero WITHOUT back button or pills -->
+    <section class="card hero">
+      <div class="hero__head">
+        <h1 class="page-title">Activity Footprint</h1>
+      </div>
+      <p class="subtitle">Enter activity to calculate distance and CO₂e avoided.</p>
+      <!-- pills removed -->
     </section>
 
+    <!-- Input card -->
     <section class="card">
+      <form id="fp-form" class="form-grid">
+        <div class="field" data-act="steps">
+          <label for="fp-steps">Steps</label>
+          <input id="fp-steps" type="number" min="0" step="1" class="input">
+        </div>
+
+        <div class="field" data-act="walk">
+          <label for="fp-walk">Walk <small>(hours)</small></label>
+          <input id="fp-walk" type="number" min="0" step="0.1" class="input">
+        </div>
+
+        <div class="field" data-act="run">
+          <label for="fp-run">Run <small>(hours)</small></label>
+          <input id="fp-run" type="number" min="0" step="0.1" class="input">
+        </div>
+
+        <div class="field" data-act="cycle">
+          <label for="fp-cycle">Cycle <small>(hours)</small></label>
+          <input id="fp-cycle" type="number" min="0" step="0.1" class="input">
+        </div>
+
+        <div class="field" data-act="hike">
+          <label for="fp-hike">Hike <small>(hours)</small></label>
+          <input id="fp-hike" type="number" min="0" step="0.1" class="input">
+        </div>
+
+        <div class="field" data-act="swim">
+          <label for="fp-swim">Swim <small>(hours)</small></label>
+          <input id="fp-swim" type="number" min="0" step="0.1" class="input">
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Save &amp; Recalculate</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Summary card -->
+    <section class="card stack-24 summary">
       <h2>Summary</h2>
-      <div id="fp-summary"></div>
+      <div id="fp-msg"></div>
+
+      <div class="kv">
+        <div><strong>Total distance:</strong> <span id="totalDistance">0 km</span></div>
+        <div><strong>Total CO₂e avoided:</strong> <span id="totalCO2">0 kg</span></div>
+      </div>
+
+      <hr class="divider"/>
+
+      <ul class="lbrows">
+        <li><span>Steps</span><i></i><strong><span id="stepsKm">0.00 km</span> → <span id="stepsKg">0.000 kg</span></strong></li>
+        <li><span>Walk</span><i></i><strong><span id="walkKm">0.00 km</span> → <span id="walkKg">0.000 kg</span></strong></li>
+        <li><span>Run</span><i></i><strong><span id="runKm">0.00 km</span> → <span id="runKg">0.000 kg</span></strong></li>
+        <li><span>Cycle</span><i></i><strong><span id="cycleKm">0.00 km</span> → <span id="cycleKg">0.000 kg</span></strong></li>
+        <li><span>Hike</span><i></i><strong><span id="hikeKm">0.00 km</span> → <span id="hikeKg">0.000 kg</span></strong></li>
+        <li><span>Swim</span><i></i><strong><span id="swimKm">0.00 km</span> → <span id="swimKg">0.000 kg</span></strong></li>
+      </ul>
     </section>
   </div>
 
+  <script src="/js/datamodel.js"></script>
   <script src="/js/footprint.js"></script>
 </body>
 </html>

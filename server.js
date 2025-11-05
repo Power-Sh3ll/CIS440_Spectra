@@ -3,7 +3,7 @@ const express = require("express");
 const mysql = require("mysql2/promise");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const footprint = require("./routes/footprint");
+
 
 const app = express();
 const port = 3000;
@@ -254,7 +254,6 @@ app.get("/api/users", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error retrieving email addresses." });
   }
 });
-
 // Route: Get current friends and pending requests
 app.get("/api/friends", authenticateToken, async (req, res) => {
   try {
@@ -458,13 +457,171 @@ app.delete("/api/friends/remove", authenticateToken, async (req, res) => {
   }
 });
 
+// Save/update activity footprint for the logged-in user
+app.post("/api/footprint/save", authenticateToken, async (req, res) => {
+  // numbers only; default to 0
+  const toNum = (v) => (isNaN(v) || v === "" || v == null ? 0 : Number(v));
+  const steps         = toNum(req.body.steps);
+  const walk_hours    = toNum(req.body.walk);
+  const run_hours     = toNum(req.body.run);
+  const cycle_hours   = toNum(req.body.cycle);
+  const hiking_hours  = toNum(req.body.hike);
+  const swimming_hours= toNum(req.body.swim);
+
+  try {
+    const conn = await createConnection();
+    const [result] = await conn.execute(
+      `UPDATE user
+         SET steps = ?,
+             walk_hours = ?,
+             run_hours = ?,
+             cycle_hours = ?,
+             hiking_hours = ?,
+             swimming_hours = ?
+       WHERE email = ?`,
+      [steps, walk_hours, run_hours, cycle_hours, hiking_hours, swimming_hours, req.user.email]
+    );
+    await conn.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    res.json({ message: "Activity saved." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error saving activity." });
+  }
+});
+
+// (Optional) fetch current values to prefill the form
+app.get("/api/footprint", authenticateToken, async (req, res) => {
+  try {
+    const conn = await createConnection();
+    const [rows] = await conn.execute(
+      `SELECT steps, walk_hours AS walk, run_hours AS run,
+              cycle_hours AS cycle, hiking_hours AS hike, swimming_hours AS swim
+         FROM user WHERE email = ?`,
+      [req.user.email]
+    );
+    await conn.end();
+    if (!rows.length) return res.status(404).json({ message: "User not found." });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error fetching activity." });
+  }
+});
+
+// ===== DAILY ACTIVITY (manual values; reset each day) =====
+
+// helper: ensure a row for (user_email, today) exists and return it
+async function ensureTodayRow(conn, email) {
+  const [rows] = await conn.execute(
+    'SELECT id, steps, distance_km, minutes, calories FROM daily_activity WHERE user_email = ? AND day = CURDATE() LIMIT 1',
+    [email]
+  );
+  if (rows.length) return rows[0];
+
+  await conn.execute(
+    'INSERT INTO daily_activity (user_email, day) VALUES (?, CURDATE())',
+    [email]
+  );
+  const [rows2] = await conn.execute(
+    'SELECT id, steps, distance_km, minutes, calories FROM daily_activity WHERE user_email = ? AND day = CURDATE() LIMIT 1',
+    [email]
+  );
+  return rows2[0];
+}
+
+// GET /api/activity  -> today's values + goals
+app.get('/api/activity', authenticateToken, async (req, res) => {
+  try {
+    const conn = await createConnection();
+    const today = await ensureTodayRow(conn, req.user.email);
+
+    const [grows] = await conn.execute(
+      `SELECT steps_goal, distance_goal_km, minutes_goal, calories_goal
+         FROM user WHERE email = ?`,
+      [req.user.email]
+    );
+    await conn.end();
+
+    if (!grows.length) return res.status(404).json({ message: 'User not found.' });
+    const g = grows[0];
+
+    res.json({
+      steps: Number(today.steps ?? 0),
+      distance: Number(today.distance_km ?? 0),
+      minutes: Number(today.minutes ?? 0),
+      calories: Number(today.calories ?? 0),
+      stepsTarget: Number(g.steps_goal ?? 10000),
+      distanceTarget: Number(g.distance_goal_km ?? 8),
+      minutesTarget: Number(g.minutes_goal ?? 60),
+      caloriesTarget: Number(g.calories_goal ?? 650),
+    });
+  } catch (err) {
+    console.error('GET /api/activity error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/activity/update  -> save today's manual values
+app.post('/api/activity/update', authenticateToken, async (req, res) => {
+  const toNum = (v, d=0) => (v === '' || v == null || isNaN(v) ? d : Number(v));
+  const steps    = toNum(req.body.steps);
+  const distance = toNum(req.body.distance);
+  const minutes  = toNum(req.body.minutes);
+  const calories = toNum(req.body.calories);
+
+  try {
+    const conn = await createConnection();
+    await ensureTodayRow(conn, req.user.email);
+
+    const [result] = await conn.execute(
+      `UPDATE daily_activity
+          SET steps = ?, distance_km = ?, minutes = ?, calories = ?
+        WHERE user_email = ? AND day = CURDATE()`,
+      [steps, distance, minutes, calories, req.user.email]
+    );
+    await conn.end();
+
+    if (!result.affectedRows) return res.status(404).json({ message: 'Row not found.' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/activity/update error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/activity/goals  -> update goals on user row
+app.post('/api/activity/goals', authenticateToken, async (req, res) => {
+  const toNum = (v, d=0) => (v === '' || v == null || isNaN(v) ? d : Number(v));
+  const stepsGoal    = toNum(req.body.stepsTarget, 10000);
+  const distanceGoal = toNum(req.body.distanceTarget, 8);
+  const minutesGoal  = toNum(req.body.minutesTarget, 60);
+  const caloriesGoal = toNum(req.body.caloriesTarget, 650);
+
+  try {
+    const conn = await createConnection();
+    const [result] = await conn.execute(
+      `UPDATE user
+          SET steps_goal = ?, distance_goal_km = ?, minutes_goal = ?, calories_goal = ?
+        WHERE email = ?`,
+      [stepsGoal, distanceGoal, minutesGoal, caloriesGoal, req.user.email]
+    );
+    await conn.end();
+
+    if (!result.affectedRows) return res.status(404).json({ message: 'User not found.' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/activity/goals error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 //////////////////////////////////////
 // END ROUTES TO HANDLE API REQUESTS
 //////////////////////////////////////
-
-// ✅ Mount footprint API AFTER middleware and all routes
-app.use("/api/footprint", authenticateToken, footprint);
-
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
