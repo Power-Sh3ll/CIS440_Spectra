@@ -69,5 +69,40 @@ const DataModel = (function () {
 
         //ADD MORE FUNCTIONS HERE TO FETCH DATA FROM THE SERVER
         //AND SEND DATA TO THE SERVER AS NEEDED
+
+        
     };
 })();
+DataModel.getActivityMetrics = async () => {
+  const r = await fetch('/api/activity', {
+    headers: { 'Authorization': localStorage.getItem('jwtToken') || localStorage.getItem('token') || '' }
+  });
+  if (!r.ok) throw new Error('Failed to load metrics');
+  return r.json();
+};
+
+DataModel.updateActivityValues = async (vals) => {
+  const r = await fetch('/api/activity/update', {
+    method: 'POST',
+    headers: {
+      'Authorization': localStorage.getItem('jwtToken') || localStorage.getItem('token') || '',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(vals)
+  });
+  if (!r.ok) throw new Error('Failed to save values');
+  return r.json();
+};
+
+DataModel.updateActivityGoals = async (goals) => {
+  const r = await fetch('/api/activity/goals', {
+    method: 'POST',
+    headers: {
+      'Authorization': localStorage.getItem('jwtToken') || localStorage.getItem('token') || '',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(goals)
+  });
+  if (!r.ok) throw new Error('Failed to save goals');
+  return r.json();
+};

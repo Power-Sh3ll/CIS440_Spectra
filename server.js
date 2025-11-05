@@ -305,6 +305,114 @@ app.get("/api/footprint", authenticateToken, async (req, res) => {
   }
 });
 
+// ===== DAILY ACTIVITY (manual values; reset each day) =====
+
+// helper: ensure a row for (user_email, today) exists and return it
+async function ensureTodayRow(conn, email) {
+  const [rows] = await conn.execute(
+    'SELECT id, steps, distance_km, minutes, calories FROM daily_activity WHERE user_email = ? AND day = CURDATE() LIMIT 1',
+    [email]
+  );
+  if (rows.length) return rows[0];
+
+  await conn.execute(
+    'INSERT INTO daily_activity (user_email, day) VALUES (?, CURDATE())',
+    [email]
+  );
+  const [rows2] = await conn.execute(
+    'SELECT id, steps, distance_km, minutes, calories FROM daily_activity WHERE user_email = ? AND day = CURDATE() LIMIT 1',
+    [email]
+  );
+  return rows2[0];
+}
+
+// GET /api/activity  -> today's values + goals
+app.get('/api/activity', authenticateToken, async (req, res) => {
+  try {
+    const conn = await createConnection();
+    const today = await ensureTodayRow(conn, req.user.email);
+
+    const [grows] = await conn.execute(
+      `SELECT steps_goal, distance_goal_km, minutes_goal, calories_goal
+         FROM user WHERE email = ?`,
+      [req.user.email]
+    );
+    await conn.end();
+
+    if (!grows.length) return res.status(404).json({ message: 'User not found.' });
+    const g = grows[0];
+
+    res.json({
+      steps: Number(today.steps ?? 0),
+      distance: Number(today.distance_km ?? 0),
+      minutes: Number(today.minutes ?? 0),
+      calories: Number(today.calories ?? 0),
+      stepsTarget: Number(g.steps_goal ?? 10000),
+      distanceTarget: Number(g.distance_goal_km ?? 8),
+      minutesTarget: Number(g.minutes_goal ?? 60),
+      caloriesTarget: Number(g.calories_goal ?? 650),
+    });
+  } catch (err) {
+    console.error('GET /api/activity error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/activity/update  -> save today's manual values
+app.post('/api/activity/update', authenticateToken, async (req, res) => {
+  const toNum = (v, d=0) => (v === '' || v == null || isNaN(v) ? d : Number(v));
+  const steps    = toNum(req.body.steps);
+  const distance = toNum(req.body.distance);
+  const minutes  = toNum(req.body.minutes);
+  const calories = toNum(req.body.calories);
+
+  try {
+    const conn = await createConnection();
+    await ensureTodayRow(conn, req.user.email);
+
+    const [result] = await conn.execute(
+      `UPDATE daily_activity
+          SET steps = ?, distance_km = ?, minutes = ?, calories = ?
+        WHERE user_email = ? AND day = CURDATE()`,
+      [steps, distance, minutes, calories, req.user.email]
+    );
+    await conn.end();
+
+    if (!result.affectedRows) return res.status(404).json({ message: 'Row not found.' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/activity/update error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST /api/activity/goals  -> update goals on user row
+app.post('/api/activity/goals', authenticateToken, async (req, res) => {
+  const toNum = (v, d=0) => (v === '' || v == null || isNaN(v) ? d : Number(v));
+  const stepsGoal    = toNum(req.body.stepsTarget, 10000);
+  const distanceGoal = toNum(req.body.distanceTarget, 8);
+  const minutesGoal  = toNum(req.body.minutesTarget, 60);
+  const caloriesGoal = toNum(req.body.caloriesTarget, 650);
+
+  try {
+    const conn = await createConnection();
+    const [result] = await conn.execute(
+      `UPDATE user
+          SET steps_goal = ?, distance_goal_km = ?, minutes_goal = ?, calories_goal = ?
+        WHERE email = ?`,
+      [stepsGoal, distanceGoal, minutesGoal, caloriesGoal, req.user.email]
+    );
+    await conn.end();
+
+    if (!result.affectedRows) return res.status(404).json({ message: 'User not found.' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /api/activity/goals error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 //////////////////////////////////////
 // END ROUTES TO HANDLE API REQUESTS
 //////////////////////////////////////
