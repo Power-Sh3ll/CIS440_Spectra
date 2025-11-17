@@ -212,14 +212,18 @@ app.get("/api/profile", authenticateToken, async (req, res) => {
   }
 });
 
+// Route: Get Leaderboard (only self + accepted friends)
 app.get("/api/leaderboard", authenticateToken, async (req, res) => {
   const day = req.query.day; // optional: "YYYY-MM-DD"
+  const userEmail = req.user.email;
 
-  // If a specific day is supplied, we compare with that.
-  // Otherwise we use CURDATE() (today).
+  // If a specific day is supplied, compare with that; otherwise use CURDATE()
   const dateClause = day ? "dc.day = ?" : "dc.day = CURDATE()";
+
+  // Build params in the order the ?s appear in the query
   const params = [];
-  if (day) params.push(day);
+  if (day) params.push(day); // for dc.day = ?
+  params.push(userEmail, userEmail, userEmail, userEmail);
 
   const query = `
     SELECT 
@@ -237,6 +241,22 @@ app.get("/api/leaderboard", authenticateToken, async (req, res) => {
     LEFT JOIN daily_carbon dc
       ON dc.user_email = u.email
      AND ${dateClause}
+    WHERE 
+      -- always include the current user
+      u.email = ?
+      OR
+      -- include only accepted friends of current user
+      u.email IN (
+        SELECT
+          CASE 
+            WHEN f.user_email = ? THEN f.friend_email
+            ELSE f.user_email
+          END AS friend_email
+        FROM friendships f
+        WHERE
+          (f.user_email = ? OR f.friend_email = ?)
+          AND f.status = 'accepted'
+      )
     ORDER BY total_co2 DESC
   `;
 
@@ -250,6 +270,7 @@ app.get("/api/leaderboard", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error fetching leaderboard." });
   }
 });
+
 
 
 
