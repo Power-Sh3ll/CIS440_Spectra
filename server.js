@@ -36,6 +36,11 @@ app.get("/profile", (req, res) => {
 app.get("/leaderboard", (req, res) => {
   res.sendFile(__dirname + "/public/Leaderboard.html");
 });
+
+// Route to serve friends.html
+app.get("/friends", (req, res) => {
+  res.sendFile(__dirname + "/public/friends.html");
+});
 //////////////////////////////////////
 //END ROUTES TO SERVE HTML FILES
 //////////////////////////////////////
@@ -264,6 +269,208 @@ app.get("/api/users", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error retrieving email addresses." });
   }
 });
+// Route: Get current friends and pending requests
+app.get("/api/friends", authenticateToken, async (req, res) => {
+  try {
+    const connection = await createConnection();
+    const userEmail = req.user.email;
+
+    // Get accepted friendships where user is involved (avoiding duplicates)
+    const [friendsRows] = await connection.execute(`
+      SELECT DISTINCT
+        CASE 
+          WHEN user_email = ? THEN friend_email 
+          ELSE user_email 
+        END as friend_email
+      FROM friendships f
+      WHERE (user_email = ? OR friend_email = ?) 
+      AND status = 'accepted'
+    `, [userEmail, userEmail, userEmail]);
+
+    // Get pending friend requests received (only where user is the recipient)
+    const [receivedRows] = await connection.execute(`
+      SELECT DISTINCT 
+        f.user_email as requester_email, 
+        f.created_at
+      FROM friendships f
+      WHERE f.friend_email = ? AND f.status = 'pending'
+    `, [userEmail]);
+
+    // Get pending friend requests sent (only where user is the sender)
+    const [sentRows] = await connection.execute(`
+      SELECT 
+        f.friend_email as recipient_email, 
+        f.created_at
+      FROM friendships f
+      WHERE f.user_email = ? AND f.status = 'pending'
+      ORDER BY f.created_at DESC
+    `, [userEmail]);
+
+    // Remove any potential duplicates by recipient email
+    const uniqueSentRows = sentRows.filter((request, index, self) => 
+      index === self.findIndex(r => r.recipient_email === request.recipient_email)
+    );
+
+    await connection.end();
+
+    res.status(200).json({
+      friends: friendsRows,
+      receivedRequests: receivedRows,
+      sentRequests: uniqueSentRows
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error retrieving friends data." });
+  }
+});
+
+// Route: Send friend request
+app.post("/api/friends/request", authenticateToken, async (req, res) => {
+  const { friendEmail } = req.body;
+  const userEmail = req.user.email;
+
+  if (!friendEmail) {
+    return res.status(400).json({ message: "Friend email is required." });
+  }
+
+  if (friendEmail === userEmail) {
+    return res.status(400).json({ message: "Cannot send friend request to yourself." });
+  }
+
+  try {
+    const connection = await createConnection();
+
+    // Check if friend exists
+    const [userExists] = await connection.execute(
+      'SELECT email FROM user WHERE email = ?',
+      [friendEmail]
+    );
+
+    if (userExists.length === 0) {
+      await connection.end();
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Check if friendship already exists (in either direction)
+    const [existingFriendship] = await connection.execute(`
+      SELECT * FROM friendships 
+      WHERE (user_email = ? AND friend_email = ?) 
+      OR (user_email = ? AND friend_email = ?)
+    `, [userEmail, friendEmail, friendEmail, userEmail]);
+
+    if (existingFriendship.length > 0) {
+      await connection.end();
+      return res.status(409).json({ message: "Friendship request already exists or you are already friends." });
+    }
+
+    // Create friend request (only one direction: sender -> recipient)
+    await connection.execute(
+      'INSERT INTO friendships (user_email, friend_email, requested_by, status) VALUES (?, ?, ?, ?)',
+      [userEmail, friendEmail, userEmail, 'pending']
+    );
+
+    await connection.end();
+    res.status(201).json({ message: "Friend request sent successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error sending friend request." });
+  }
+});
+
+// Route: Accept friend request
+app.post("/api/friends/accept", authenticateToken, async (req, res) => {
+  const { requesterEmail } = req.body;
+  const userEmail = req.user.email;
+
+  if (!requesterEmail) {
+    return res.status(400).json({ message: "Requester email is required." });
+  }
+
+  try {
+    const connection = await createConnection();
+
+    // Update the friend request to accepted
+    const [result] = await connection.execute(`
+      UPDATE friendships 
+      SET status = 'accepted', updated_at = CURRENT_TIMESTAMP
+      WHERE user_email = ? AND friend_email = ? AND status = 'pending'
+    `, [requesterEmail, userEmail]);
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Friend request not found." });
+    }
+
+    res.status(200).json({ message: "Friend request accepted!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error accepting friend request." });
+  }
+});
+
+// Route: Decline friend request
+app.post("/api/friends/decline", authenticateToken, async (req, res) => {
+  const { requesterEmail } = req.body;
+  const userEmail = req.user.email;
+
+  if (!requesterEmail) {
+    return res.status(400).json({ message: "Requester email is required." });
+  }
+
+  try {
+    const connection = await createConnection();
+
+    // Delete the friend request
+    const [result] = await connection.execute(`
+      DELETE FROM friendships 
+      WHERE user_email = ? AND friend_email = ? AND status = 'pending'
+    `, [requesterEmail, userEmail]);
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Friend request not found." });
+    }
+
+    res.status(200).json({ message: "Friend request declined." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error declining friend request." });
+  }
+});
+
+// Route: Remove friend
+app.delete("/api/friends/remove", authenticateToken, async (req, res) => {
+  const { friendEmail } = req.body;
+  const userEmail = req.user.email;
+
+  if (!friendEmail) {
+    return res.status(400).json({ message: "Friend email is required." });
+  }
+
+  try {
+    const connection = await createConnection();
+
+    // Remove friendship (works in both directions)
+    const [result] = await connection.execute(`
+      DELETE FROM friendships 
+      WHERE ((user_email = ? AND friend_email = ?) OR (user_email = ? AND friend_email = ?))
+      AND status = 'accepted'
+    `, [userEmail, friendEmail, friendEmail, userEmail]);
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Friendship not found." });
+    }
+
+    res.status(200).json({ message: "Friend removed successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error removing friend." });
+  }
+});
 
 // // Save/update activity footprint for the logged-in user
 // app.post("/api/footprint/save", authenticateToken, async (req, res) => {
@@ -485,6 +692,7 @@ app.post('/api/activity/goals', authenticateToken, async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 // ==========================================
 // CARBON TRACKER (CO₂ savings) ROUTES
 // ==========================================
@@ -550,6 +758,8 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
 });
 
 
+=======
+>>>>>>> 215b4fc5d874a3d75bc2095372d54b887aa1cac5
 //////////////////////////////////////
 // END ROUTES TO HANDLE API REQUESTS
 //////////////////////////////////////

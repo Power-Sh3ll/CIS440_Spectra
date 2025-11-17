@@ -14,6 +14,7 @@ const logoutBtn = document.getElementById('logout-btn');
 const editProfileBtn = document.getElementById('edit-profile-btn');
 const goToDashboardBtn = document.getElementById('go-to-dashboard-btn');
 const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
+const viewFriendsBtn = document.getElementById('view-friends-btn');
 // Load user profile data
 async function loadProfile() {
     try {
@@ -65,6 +66,11 @@ goToDashboardBtn.addEventListener('click', () => {
 // View leaderboard
 viewLeaderboardBtn.addEventListener('click', () => {
     window.location.href = '/leaderboard';
+});
+
+// View friends
+viewFriendsBtn.addEventListener('click', () => {
+    window.location.href = '/friends';
 });
 
 // Load profile when page loads

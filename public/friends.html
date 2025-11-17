@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends - Spectra</title>
+    <link rel="stylesheet" href="css/friends.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Friends</h1>
+            <p>Manage your friends and friend requests</p>
+            <div class="navigation">
+                <button class="nav-button" onclick="window.location.href='/profile'">← Back to Profile</button>
+            </div>
+        </div>
+
+        <div class="friends-grid">
+            <!-- Current Friends -->
+            <div class="friends-section">
+                <h2 class="section-title">My Friends</h2>
+                <div id="friends-list" class="loading">Loading friends...</div>
+            </div>
+
+            <!-- Friend Requests Received -->
+            <div class="friends-section">
+                <h2 class="section-title">Friend Requests</h2>
+                <div id="received-requests" class="loading">Loading requests...</div>
+            </div>
+
+            <!-- Sent Requests -->
+            <div class="friends-section">
+                <h2 class="section-title">Sent Requests</h2>
+                <div id="sent-requests" class="loading">Loading sent requests...</div>
+            </div>
+
+            <!-- Add New Friend -->
+            <div class="friends-section">
+                <h2 class="section-title">Add New Friend</h2>
+                <p style="margin-bottom: 15px; color: #666; text-align: center;">Enter an email address to send a friend request:</p>
+                <div class="add-friend-form">
+                    <input type="email" id="friend-email-input" class="add-friend-input" placeholder="friend@example.com" required>
+                    <button id="send-request-btn" class="btn btn-send">Send Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/friends.js"></script>
+</body>
+</html>
