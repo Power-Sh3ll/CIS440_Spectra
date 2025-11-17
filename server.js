@@ -692,7 +692,6 @@ app.post('/api/activity/goals', authenticateToken, async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 // ==========================================
 // CARBON TRACKER (CO₂ savings) ROUTES
 // ==========================================
@@ -758,8 +757,6 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
 });
 
 
-=======
->>>>>>> 215b4fc5d874a3d75bc2095372d54b887aa1cac5
 //////////////////////////////////////
 // END ROUTES TO HANDLE API REQUESTS
 //////////////////////////////////////
