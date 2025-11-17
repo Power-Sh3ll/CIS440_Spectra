@@ -46,17 +46,32 @@
   <!-- MAIN -->
   <main class="container" role="main">
     <div class="dashboard-header">
-      <h1 class="page-title">Today's Activity</h1>
-      <!-- status toast -->
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <div class="dashboard-header-left">
+        <h1 class="page-title">Daily Overview</h1>
+        <p class="page-subtitle">
+          Switch days to review your fitness and carbon savings.
+        </p>
+      </div>
 
+      <div class="dashboard-header-right">
+        <div class="dashboard-actions fitness-only">
+          <button id="edit-values-btn" class="btn btn--ghost">Edit Values</button>
+          <button id="edit-goals-btn"  class="btn btn--ghost">Edit Goals</button>
+        </div>
 
-      <div class="dashboard-actions">
-        <button id="edit-values-btn" class="btn btn--ghost">Edit Values</button>
-        <button id="edit-goals-btn"  class="btn btn--ghost">Edit Goals</button>
-        <span class="today-date" id="todayDate"></span>
+        <div class="dashboard-date">
+          <label class="date-label" for="dashDatePicker">Select day</label>
+          <div class="date-row">
+            <input type="date" id="dashDatePicker" class="date-input">
+            <button id="dashTodayBtn" class="btn btn--ghost btn--sm">Today</button>
+          </div>
+          <p class="date-caption">Viewing: <span id="dashDateDisplay">Today</span></p>
+        </div>
       </div>
     </div>
+
+    <!-- status toast -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <!-- FITNESS VIEW (cards) -->
     <section id="fitnessView" class="cards-grid" aria-live="polite">
@@ -113,11 +128,78 @@
       </article>
     </section>
 
-    <!-- CARBON VIEW (placeholder) -->
-    <section id="carbonView" class="cards-grid hidden">
-      <div class="carbon-placeholder">
-        <h2>Carbon view</h2>
-        <p>Carbon metrics and charts go here.</p>
+    <!-- CARBON VIEW (wide, like Fitness) -->
+    <section id="carbonView" class="hidden">
+      <div class="carbon-grid">
+        <!-- Left: input card -->
+        <article class="stat-card carbon-card">
+          <div class="card-head">
+            <h2 class="card-title">Carbon Savings Tracker</h2>
+            <p class="card-sub">Log hours you intentionally traveled by human power. We’ll estimate CO₂e avoided.</p>
+          </div>
+
+          <form id="fp-form" class="form-grid">
+            <div class="field">
+              <label for="fp-walk">Walk <small>(hrs)</small></label>
+              <input id="fp-walk" type="number" min="0" step="0.1" class="input">
+            </div>
+            <div class="field">
+              <label for="fp-run">Run <small>(hrs)</small></label>
+              <input id="fp-run" type="number" min="0" step="0.1" class="input">
+            </div>
+            <div class="field">
+              <label for="fp-cycle">Cycle <small>(hrs)</small></label>
+              <input id="fp-cycle" type="number" min="0" step="0.1" class="input">
+            </div>
+            <div class="field">
+              <label for="fp-hike">Hike <small>(hrs)</small></label>
+              <input id="fp-hike" type="number" min="0" step="0.1" class="input">
+            </div>
+            <div class="field">
+              <label for="fp-swim">Swim <small>(hrs)</small></label>
+              <input id="fp-swim" type="number" min="0" step="0.1" class="input">
+            </div>
+
+            <div class="actions actions--center">
+              <button type="submit" class="btn btn--success">Save &amp; Recalculate</button>
+            </div>
+
+            <p id="fp-msg" class="msg"></p>
+          </form>
+        </article>
+
+        <!-- Right: summary card (matches Fitness card look) -->
+        <article class="stat-card carbon-summary">
+          <div class="stat-left">
+            <div class="stat-icon">🌿</div>
+            <div>
+              <div class="stat-label">Today’s Carbon Savings</div>
+              <div class="stat-value">
+                <strong id="totalCO2">0.000</strong> kg CO₂e
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-left" style="margin-top:14px;">
+            <div class="stat-icon">📍</div>
+            <div>
+              <div class="stat-label">Human-powered Distance</div>
+              <div class="stat-value">
+                <strong id="totalDistance">0.00</strong> km
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider-lite" />
+
+          <ul class="lbrows">
+            <li><span>Walk</span><i></i><strong><span id="walkKm">0.00 km</span> → <span id="walkKg">0.000 kg</span></strong></li>
+            <li><span>Run</span><i></i><strong><span id="runKm">0.00 km</span> → <span id="runKg">0.000 kg</span></strong></li>
+            <li><span>Cycle</span><i></i><strong><span id="cycleKm">0.00 km</span> → <span id="cycleKg">0.000 kg</span></strong></li>
+            <li><span>Hike</span><i></i><strong><span id="hikeKm">0.00 km</span> → <span id="hikeKg">0.000 kg</span></strong></li>
+            <li><span>Swim</span><i></i><strong><span id="swimKm">0.00 km</span> → <span id="swimKg">0.000 kg</span></strong></li>
+          </ul>
+        </article>
       </div>
     </section>
   </main>
@@ -157,5 +239,6 @@
 
   <script src="/js/datamodel.js"></script>
   <script src="/js/dashboard.js"></script>
+  <script src="/js/footprint-dashboard.js"></script>
 </body>
 </html>

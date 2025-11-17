@@ -1,38 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard - Spectra</title>
-    <link rel="stylesheet" href="css/leaderboard.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carbon Leaderboard - Spectra</title>
+
+  <!-- Advent Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/leaderboard.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Leaderboard</h1>
-            <p>See who's leading the competition</p>
-            <div class="navigation">
-                <button id="back-to-profile-btn" class="nav-button">Back to Profile</button>
-            </div>
-        </div>
-        
-        <div class="sorting-controls">
-            <h3>Sort by Activity:</h3>
-            <div class="sort-buttons">
-                <button class="sort-btn active" data-sort="walk_hours">Walking</button>
-                <button class="sort-btn" data-sort="run_hours">Running</button>
-                <button class="sort-btn" data-sort="cycle_hours">Cycling</button>
-                <button class="sort-btn" data-sort="hiking_hours">Hiking</button>
-                <button class="sort-btn" data-sort="swimming_hours">Swimming</button>
-                <button class="sort-btn" data-sort="total_hours">Total</button>
-            </div>
-        </div>
-        
-        <div id="leaderboard-container">
-            <label class="loading-text" id="loading-label">Loading leaderboard...</label>
-            <ul class="leaderboard-list" id="leaderboard-list"></ul>
-        </div>
+  <!-- TOP BAR (match dashboard) -->
+  <header class="topbar" role="banner">
+    <div class="topbar__left">
+      <a href="/dashboard" class="brand" aria-label="Dashboard">
+        <img src="/Assets/Logo.png" alt="Spectra logo" class="brand__logo">
+        <span class="brand__name">Spectra</span>
+      </a>
     </div>
-    <script src="js/leaderboard.js"></script>
+
+    <div class="topbar__center">
+      <h1 class="page-title">Carbon Leaderboard</h1>
+    </div>
+
+    <div class="topbar__right">
+      <nav class="quick-nav" aria-label="quick navigation">
+        <button id="dashboardBtn" class="btn btn--ghost">Dashboard</button>
+        <button id="profileBtn"   class="btn btn--ghost">Profile</button>
+      </nav>
+      <button id="logoutButton" class="btn btn--primary">Log Out</button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container" role="main">
+    <section class="leaderboard-header-card">
+      <div class="leaderboard-header-left">
+        <h2>Daily CO₂ Savings</h2>
+        <p class="subtitle">
+          Compare how much CO₂ you and your friends avoided by moving under your own power.
+        </p>
+      </div>
+
+      <div class="leaderboard-header-right">
+        <label class="date-label" for="datePicker">Select day</label>
+        <div class="date-row">
+          <input type="date" id="datePicker" class="date-input">
+          <button id="todayBtn" class="btn btn--ghost btn--sm">Today</button>
+        </div>
+        <p class="date-caption">Viewing: <span id="dateDisplay">Today</span></p>
+      </div>
+    </section>
+
+    <section class="leaderboard-controls-card">
+      <div class="controls-row">
+        <div>
+          <h3 class="controls-title">Sort by</h3>
+          <p class="controls-caption">Tap a metric to re-rank the board.</p>
+        </div>
+        <div class="sort-buttons">
+          <button class="sort-btn sort-btn--active" data-sort="total_co2">CO₂ saved (kg)</button>
+          <button class="sort-btn" data-sort="total_km">Distance (km)</button>
+          <button class="sort-btn" data-sort="walk_hours">Walk (hrs)</button>
+          <button class="sort-btn" data-sort="run_hours">Run (hrs)</button>
+          <button class="sort-btn" data-sort="cycle_hours">Cycle (hrs)</button>
+          <button class="sort-btn" data-sort="hike_hours">Hike (hrs)</button>
+          <button class="sort-btn" data-sort="swim_hours">Swim (hrs)</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="leaderboard-card" id="leaderboardSection">
+      <div id="loading-label" class="loading-text">Loading leaderboard…</div>
+      <ul id="leaderboard-list" class="leaderboard-list"></ul>
+      <div id="no-data" class="no-data hidden">
+        <span class="no-data-icon">🌱</span>
+        <p>No activity logged for this day yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast for errors -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/leaderboard.js"></script>
 </body>
 </html>
