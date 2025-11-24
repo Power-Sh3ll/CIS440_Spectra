@@ -10,14 +10,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
 
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/footer.css" />
   <link rel="stylesheet" href="/css/profile.css" />
 </head>
 <body>
-  <!-- logo fixed top-left -->
-  <img src="/Assets/Logo.png" alt="Spectra Logo" class="logo">
-
   <div class="container">
-    <header>
+    <header style="display: none;">
       <div class="header-content">
         <h1>Spectra Profile</h1>
         <button id="logout-btn" class="logout-button">Logout</button>
@@ -59,15 +58,14 @@
 
         <div class="profile-actions">
           <button id="edit-profile-btn" class="button">Edit Profile</button>
-          <button id="go-to-dashboard-btn" class="button secondary">Go to Dashboard</button>
-          <a href="footprint.html" class="button secondary" id="activity-footprint-btn">Activity Footprint</a>
-          <button id="view-leaderboard-btn" class="button secondary">View Leaderboard</button>
-          <button id="view-friends-btn" class="button secondary">View Friends</button>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="/js/navbar.js"></script>
+  <script src="/js/footer.js"></script>
+  <script src="/js/theme-manager.js"></script>
   <script src="/js/profile.js"></script>
 </body>
 </html>

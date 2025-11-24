@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Spectra</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/notifications.css">
+  <link rel="stylesheet" href="/css/settings.css">
+</head>
+<body>
+  <!-- Navbar placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="settings-container">
+    <div class="settings-header">
+      <h1>Settings</h1>
+      <p>Customize your Spectra experience</p>
+    </div>
+
+    <div class="settings-content">
+      <form id="settings-form" class="settings-form">
+        
+        <!-- Appearance Section -->
+        <section class="settings-section">
+          <h2>Appearance</h2>
+          <div class="setting-item">
+            <label for="theme">Theme</label>
+            <select id="theme" name="theme">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="auto">Auto (System)</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section class="settings-section">
+          <h2>Notifications</h2>
+          <div class="setting-item">
+            <label for="notifications_enabled">Enable Notifications</label>
+            <input type="checkbox" id="notifications_enabled" name="notifications_enabled" class="toggle-switch">
+          </div>
+          <div class="setting-item">
+            <label for="email_notifications">Email Notifications</label>
+            <input type="checkbox" id="email_notifications" name="email_notifications" class="toggle-switch">
+          </div>
+          <!-- Temporarily commented out until database is updated
+          <div class="setting-item">
+            <label for="allow_pokes">Allow Pokes from Friends</label>
+            <input type="checkbox" id="allow_pokes" name="allow_pokes" class="toggle-switch">
+          </div>
+          -->
+        </section>
+
+        <!-- Privacy Section -->
+        <section class="settings-section">
+          <h2>Privacy</h2>
+          <div class="setting-item">
+            <label for="activity_privacy">Activity Privacy</label>
+            <select id="activity_privacy" name="activity_privacy">
+              <option value="public">Public</option>
+              <option value="friends">Friends Only</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Units & Language Section -->
+        <section class="settings-section">
+          <h2>Units & Language</h2>
+          <div class="setting-item">
+            <label for="units">Measurement Units</label>
+            <select id="units" name="units">
+              <option value="metric">Metric (km, kg)</option>
+              <option value="imperial">Imperial (mi, lb)</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="language">Language</label>
+            <select id="language" name="language">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="timezone">Timezone</label>
+            <select id="timezone" name="timezone">
+              <option value="UTC">UTC</option>
+              <option value="America/New_York">Eastern Time</option>
+              <option value="America/Chicago">Central Time</option>
+              <option value="America/Denver">Mountain Time</option>
+              <option value="America/Los_Angeles">Pacific Time</option>
+              <option value="Europe/London">London</option>
+              <option value="Europe/Paris">Paris</option>
+              <option value="Asia/Tokyo">Tokyo</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section class="settings-section">
+          <h2>Weekly Goals</h2>
+          <div class="setting-item">
+            <label for="weekly_goal_steps">Weekly Steps Goal</label>
+            <input type="number" id="weekly_goal_steps" name="weekly_goal_steps" min="0" max="200000" step="1000" placeholder="70000">
+          </div>
+          <div class="setting-item">
+            <label for="weekly_goal_distance">Weekly Distance Goal (<span id="distance-unit">km</span>)</label>
+            <input type="number" id="weekly_goal_distance" name="weekly_goal_distance" min="0" max="500" step="0.5" placeholder="50.0">
+          </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="settings-actions">
+          <button type="submit" class="btn-primary">Save Settings</button>
+          <button type="button" id="reset-btn" class="btn-secondary">Reset to Defaults</button>
+        </div>
+      </form>
+
+      <!-- Status Messages -->
+      <div id="settings-message" class="settings-message" style="display: none;"></div>
+    </div>
+  </main>
+
+  <script src="/js/navbar.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/theme-manager.js"></script>
+  <script src="/js/units-manager.js"></script>
+  <script src="/js/privacy-manager.js"></script>
+  <script src="/js/notification-manager.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

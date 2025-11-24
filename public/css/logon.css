@@ -1,28 +1,14 @@
-:root{
-  --cream:#f3f9d2;          
-  --beaver:#ab8476;         
-  --indigo-dye:#2b4162;    
-  --dartmouth-green:#0b6e4f;
-  --blood-red:#621708;     
-
-  --text:#1f2430;
-  --muted:#6b7a99;
-  --border:#e7ecf3;
-  --radius:18px;
-  --shadow:0 12px 28px rgba(43,65,98,.12);
-}
+/* Import Theme Variables */
+@import url('./theme.css');
 
 /* Global */
 *{box-sizing:border-box;}
 html, body{
   height:100%;
   margin:0;
-  color:var(--text);
+  color:var(--text-primary);
   font-family:"Advent Pro", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background:
-    radial-gradient(80% 80% at 10% 10%, rgba(171,132,118,0.25) 0%, rgba(171,132,118,0) 70%),
-    radial-gradient(90% 90% at 90% 30%, rgba(11,110,79,0.25) 0%, rgba(11,110,79,0) 65%),
-    var(--cream);
+  background:var(--bg);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -36,9 +22,9 @@ html, body{
   justify-content:center;
   max-width:1200px;
   width:90%;
-  background: #fff;
+  background: var(--card-bg);
   border-radius:20px;
-  box-shadow:0 12px 28px rgba(43,65,98,.12);
+  box-shadow:var(--shadow);
   overflow:hidden;
 }
 
@@ -63,6 +49,7 @@ html, body{
 .form-wrapper h1 {
   margin:0 0 20px 0;
   font-size:36px;
+  color:var(--text-primary);
   text-align:center;
 }
 
@@ -73,12 +60,12 @@ html, body{
   gap:6px;
   padding:6px;
   border-radius:999px;
-  background:#eef2f8;
+  background:var(--border-color);
   margin:16px 0 20px;
 }
 .tab-button{
   border:0; padding:10px 14px; border-radius:999px;
-  background:transparent; color:var(--muted);
+  background:transparent; color:var(--text-secondary);
   font-weight:800; cursor:pointer; transition:all .2s ease;
 }
 .tab-button.active{
@@ -98,14 +85,17 @@ form.active-form {
 label {
   display:block;
   margin:10px 0 5px;
+  color:var(--text-primary);
 }
 
 input {
   width:100%;
   padding:10px 12px;
   margin-bottom:10px;
-  border:1px solid #ccc;
+  border:1px solid var(--border-color);
   border-radius:5px;
+  background:var(--input-bg);
+  color:var(--text-primary);
   font-size:16px;
 }
 
@@ -128,8 +118,8 @@ input {
 .button:active{ transform:translateY(1px); }
 
 /* Helper text / links */
-.message{ margin-top:14px; text-align:center; font-size:14px; color:var(--muted); }
-.message a{ color:var(--indigo-dye); font-weight:800; text-decoration:none; }
+.message{ margin-top:14px; text-align:center; font-size:14px; color:var(--text-secondary); }
+.message a{ color:var(--accent-color); font-weight:800; text-decoration:none; }
 .message a:hover{ text-decoration:underline; }
 
 /* States */

@@ -1,5 +1,9 @@
 /* Profile — Spectra with big avatar + animation */
-:root{
+
+/* Theme Variables */
+:root,
+[data-theme="light"] {
+  /* Light Theme (Default) */
   --cream:#f3f9d2;
   --beaver:#ab8476;
   --indigo-dye:#2b4162;
@@ -11,14 +15,86 @@
   --glass: rgba(255,255,255,0.98);
   --radius:18px;
   --shadow: 0 20px 45px rgba(31,42,68,0.08);
+
+  --bg: linear-gradient(180deg, var(--cream), #f7fbf9);
+  --card-bg-grad: linear-gradient(180deg, #ffffff, #fbfeff);
+  --glass-shadow: 0 10px 30px rgba(20,60,120,0.06);
+
+  --text-primary: var(--indigo-dye);
+  --text-secondary: var(--muted);
+  --text-muted: #8a9ba8;
+  --border-color: rgba(37,50,71,0.06);
+  --border-dark: rgba(37,50,71,0.12);
+  --input-bg: var(--card-bg);
+  --input-border: rgba(17,70,178,0.08);
+  --accent-color: var(--dartmouth-green);
+  --danger-color: var(--blood-red);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --cream: #1a1a1a;
+  --beaver: #8b6f63;
+  --indigo-dye: #e0e0e0;
+  --dartmouth-green: #51cf66;
+  --blood-red: #ff6b6b;
+
+  --muted: #b0b0b0;
+  --card-bg: #2d2d2d;
+  --glass: rgba(45,45,45,0.95);
+  --shadow: 0 20px 45px rgba(0,0,0,0.25);
+
+  --bg: linear-gradient(180deg, #1a1a1a, #242424);
+  --card-bg-grad: linear-gradient(180deg, #2d2d2d, #353535);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --border-color: rgba(255,255,255,0.08);
+  --border-dark: rgba(255,255,255,0.15);
+  --input-bg: #404040;
+  --input-border: #555;
+  --accent-color: #51cf66;
+  --danger-color: #ff6b6b;
+}
+
+/* Auto theme detection */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --cream: #1a1a1a;
+    --beaver: #8b6f63;
+    --indigo-dye: #e0e0e0;
+    --dartmouth-green: #51cf66;
+    --blood-red: #ff6b6b;
+
+    --muted: #b0b0b0;
+    --card-bg: #2d2d2d;
+    --glass: rgba(45,45,45,0.95);
+    --shadow: 0 20px 45px rgba(0,0,0,0.25);
+
+    --bg: linear-gradient(180deg, #1a1a1a, #242424);
+    --card-bg-grad: linear-gradient(180deg, #2d2d2d, #353535);
+    --glass-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #888888;
+    --border-color: rgba(255,255,255,0.08);
+    --border-dark: rgba(255,255,255,0.15);
+    --input-bg: #404040;
+    --input-border: #555;
+    --accent-color: #51cf66;
+    --danger-color: #ff6b6b;
+  }
 }
 
 /* base */
 *{box-sizing:border-box}
-html,body{height:100%; margin:0; font-family:"Advent Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:linear-gradient(180deg, var(--cream), #f7fbf9); color:var(--indigo-dye); font-size:18px;}
+html,body{height:100%; margin:0; font-family:"Advent Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--text-primary); font-size:18px; transition: background 0.3s ease, color 0.3s ease;}
 
 /* container */
-.container{max-width:980px; margin:40px auto; padding:24px;}
+.container{min-width:80vw; max-width:980px; margin:40px auto; padding:24px;}
 
 /* logo - fixed top-left */
 .logo {
@@ -99,15 +175,15 @@ header {
 .avatar-wrap:hover .avatar-img { transform: scale(1.05); }
 
 /* name block */
-.name-block h2{ margin:0; font-size:32px; font-weight:700; color:var(--indigo-dye); }
-.small-muted{ color:var(--muted); font-weight:700; margin-top:6px; font-size:18px; }
+.name-block h2{ margin:0; font-size:32px; font-weight:700; color:var(--text-primary); }
+.small-muted{ color:var(--text-secondary); font-weight:700; margin-top:6px; font-size:18px; }
 
 /* profile info */
 .profile-info{ margin-top:24px; margin-bottom:28px; }
 .info-item{ display:flex; justify-content:space-between; align-items:center; padding:20px 0; border-bottom:1px solid rgba(31,42,68,0.04); gap:18px; }
 .info-item:last-child{ border-bottom:none; }
-.info-item label{ font-weight:700; color:var(--indigo-dye); font-size:18px; min-width:160px; }
-.info-item span{ color:var(--muted); font-weight:600; font-size:18px; text-align:right; }
+.info-item label{ font-weight:700; color:var(--text-primary); font-size:18px; min-width:160px; }
+.info-item span{ color:var(--text-secondary); font-weight:600; font-size:18px; text-align:right; }
 
 /* actions */
 .profile-actions{ display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-top:16px; }

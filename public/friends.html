@@ -5,49 +5,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friends - Spectra</title>
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/notifications.css">
     <link rel="stylesheet" href="css/friends.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="friends-header">
             <h1>Friends</h1>
-            <p>Manage your friends and friend requests</p>
-            <div class="navigation">
-                <button class="nav-button" onclick="window.location.href='/profile'">← Back to Profile</button>
+            <p>Connect and manage your fitness community</p>
+            <div class="search-bar">
+                <input type="text" id="friend-search" placeholder="Search friends or find new users..." class="search-input">
+                <button id="search-btn" class="search-btn">🔍</button>
             </div>
         </div>
 
-        <div class="friends-grid">
-            <!-- Current Friends -->
-            <div class="friends-section">
-                <h2 class="section-title">My Friends</h2>
-                <div id="friends-list" class="loading">Loading friends...</div>
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="friends">
+                    <span>My Friends</span>
+                    <span class="count" id="friends-count">0</span>
+                </button>
+                <button class="tab-btn" data-tab="requests">
+                    <span>Pending</span>
+                    <span class="count" id="requests-count">0</span>
+                </button>
+                <button class="tab-btn" data-tab="add">
+                    <span>Sent Requests</span>
+                    <span class="count" id="sent-count">0</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tab-content">
+            <!-- Search Results Page (hidden by default) -->
+            <div class="search-page" id="search-page" style="display: none;">
+                <div class="search-page-header">
+                    <button class="back-btn" onclick="exitSearchMode()">
+                        ← Back to Friends
+                    </button>
+                    <div class="search-info">
+                        <h2>Search Results</h2>
+                        <p id="search-query-display">Searching for: ""</p>
+                    </div>
+                </div>
+                
+                <div class="search-controls">
+                    <div class="search-bar-large">
+                        <input type="text" id="search-input-page" placeholder="Search for users by name or email..." class="search-input-large">
+                        <button id="search-btn-page" class="search-btn-large">🔍 Search</button>
+                    </div>
+                </div>
+                
+                <div id="search-results-container" class="search-results">
+                    <div class="loading">Searching users...</div>
+                </div>
             </div>
 
-            <!-- Friend Requests Received -->
-            <div class="friends-section">
-                <h2 class="section-title">Friend Requests</h2>
-                <div id="received-requests" class="loading">Loading requests...</div>
+            <!-- My Friends Tab -->
+            <div class="tab-panel active" id="friends-panel">
+                <div id="friends-list" class="friends-grid">
+                    <div class="loading">Loading friends...</div>
+                </div>
             </div>
 
-            <!-- Sent Requests -->
-            <div class="friends-section">
-                <h2 class="section-title">Sent Requests</h2>
-                <div id="sent-requests" class="loading">Loading sent requests...</div>
+            <!-- Pending Requests Tab -->
+            <div class="tab-panel" id="requests-panel">
+                <h3 class="panel-title">Pending Friend Requests</h3>
+                <div id="received-requests" class="requests-grid">
+                    <div class="loading">Loading requests...</div>
+                </div>
             </div>
 
-            <!-- Add New Friend -->
-            <div class="friends-section">
-                <h2 class="section-title">Add New Friend</h2>
-                <p style="margin-bottom: 15px; color: #666; text-align: center;">Enter an email address to send a friend request:</p>
-                <div class="add-friend-form">
-                    <input type="email" id="friend-email-input" class="add-friend-input" placeholder="friend@example.com" required>
-                    <button id="send-request-btn" class="btn btn-send">Send Request</button>
+            <!-- Sent Requests Tab -->
+            <div class="tab-panel" id="add-panel">
+                <h3 class="panel-title">Sent Friend Requests</h3>
+                <div id="sent-requests" class="requests-grid">
+                    <div class="loading">Loading sent requests...</div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
+    <script src="/js/navbar.js"></script>
+    <script src="/js/footer.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    <script src="/js/theme-manager.js"></script>
+    <script src="/js/units-manager.js"></script>
+    <script src="/js/privacy-manager.js"></script>
+    <script src="/js/notification-manager.js"></script>
     <script src="/js/friends.js"></script>
 </body>
 </html>

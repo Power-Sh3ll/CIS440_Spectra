@@ -1,0 +1,215 @@
+/* Footer Component Styles */
+/* Theme Variables */
+:root,
+[data-theme="light"] {
+    /* Light Theme Colors (Default) */
+    --primary-bg: #FFFEEC;
+    --secondary-bg: #b49286;
+    --text-primary: #2b4162;
+    --text-secondary: #7a7b7c;
+    --accent: #2b4162;
+    --muted: rgba(43, 65, 98, 0.6);
+
+    /* Spectra Color Palette */
+    --cream: #FFFEEC;
+    --beaver: #b49286;
+    --indigo-dye: #2b4162;
+    --dartmouth-green: #216653;
+
+    /* UI Variables */
+    --card-bg: var(--cream);
+    --card-bg-secondary: var(--beaver);
+    --bg: var(--cream);
+    
+    /* Footer specific */
+    --footer-bg: linear-gradient(135deg, #2B4162, #0b6e4f);
+    --footer-text: white;
+    --footer-text-muted: rgba(255, 255, 255, 0.8);
+    --footer-text-dim: rgba(255, 255, 255, 0.6);
+    --footer-border: rgba(255, 255, 255, 0.1);
+    
+    /* Transitions */
+    --theme-transition: all 0.3s ease;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --primary-bg: #1a1a1a;
+    --secondary-bg: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --accent: #e0e0e0;
+    --muted: rgba(224, 224, 224, 0.6);
+    
+    --cream: #2d2d2d;
+    --beaver: #3d3d3d;
+    --indigo-dye: #e0e0e0;
+    --dartmouth-green: #4a9d82;
+    
+    --card-bg: var(--cream);
+    --card-bg-secondary: var(--beaver);
+    --bg: var(--primary-bg);
+    
+    --footer-bg: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    --footer-text: #e0e0e0;
+    --footer-text-muted: rgba(224, 224, 224, 0.8);
+    --footer-text-dim: rgba(224, 224, 224, 0.6);
+    --footer-border: rgba(224, 224, 224, 0.1);
+}
+
+/* Auto Theme - respects system preference */
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] {
+        --primary-bg: #1a1a1a;
+        --secondary-bg: #2d2d2d;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --accent: #e0e0e0;
+        --muted: rgba(224, 224, 224, 0.6);
+        
+        --cream: #2d2d2d;
+        --beaver: #3d3d3d;
+        --indigo-dye: #e0e0e0;
+        --dartmouth-green: #4a9d82;
+        
+        --card-bg: var(--cream);
+        --card-bg-secondary: var(--beaver);
+        --bg: var(--primary-bg);
+        
+        --footer-bg: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+        --footer-text: #e0e0e0;
+        --footer-text-muted: rgba(224, 224, 224, 0.8);
+        --footer-text-dim: rgba(224, 224, 224, 0.6);
+        --footer-border: rgba(224, 224, 224, 0.1);
+    }
+}
+
+/* Add smooth transitions for theme switching */
+* {
+    transition: var(--theme-transition);
+}
+
+.spectra-footer {
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    margin-top: auto;
+    padding: 40px 0 20px;
+    transition: var(--theme-transition);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.footer-logo {
+    height: 35px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.footer-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--footer-text);
+}
+
+.footer-links {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.footer-link {
+    color: var(--footer-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--theme-transition);
+}
+
+.footer-link:hover {
+    color: var(--footer-text);
+}
+
+.footer-info {
+    text-align: center;
+    color: var(--footer-text-dim);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--footer-border);
+    padding-top: 20px;
+    width: 100%;
+}
+
+.footer-info p {
+    margin: 0;
+}
+
+/* Body spacing when footer is present */
+body.has-footer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure main content grows to push footer to bottom */
+body.has-footer main,
+body.has-footer .container {
+    flex-grow: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-content {
+        gap: 25px;
+    }
+    
+    .footer-links {
+        gap: 20px;
+    }
+    
+    .footer-brand {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+    
+    .footer-title {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .spectra-footer {
+        padding: 30px 0 15px;
+    }
+    
+    .footer-container {
+        padding: 0 15px;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .footer-info {
+        font-size: 0.8rem;
+        padding-top: 15px;
+    }
+}

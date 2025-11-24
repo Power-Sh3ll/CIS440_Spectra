@@ -10,11 +10,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/leaderboard.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/Leaderboard.css">
 </head>
 <body>
-  <!-- TOP BAR (match dashboard) -->
-  <header class="topbar" role="banner">
+  <!-- TOP BAR (hidden - replaced by unified navbar) -->
+  <header class="topbar" role="banner" style="display: none;">
     <div class="topbar__left">
       <a href="/dashboard" class="brand" aria-label="Dashboard">
         <img src="/Assets/Logo.png" alt="Spectra logo" class="brand__logo">
@@ -86,6 +88,10 @@
   <!-- Toast for errors -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <script src="/js/navbar.js"></script>
+  <script src="/js/footer.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/theme-manager.js"></script>
   <script src="/js/leaderboard.js"></script>
 </body>
 </html>

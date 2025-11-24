@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Test - Spectra</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        body {
+            font-family: "Advent Pro", system-ui, sans-serif;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .theme-controls {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .theme-btn {
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .theme-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .demo-card {
+            background: var(--card-bg-grad);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .demo-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border-radius: 8px;
+        }
+        
+        .demo-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+        
+        .demo-button.secondary {
+            background: var(--text-secondary);
+        }
+        
+        .demo-button.danger {
+            background: var(--danger-color);
+        }
+        
+        .text-muted {
+            color: var(--text-muted);
+        }
+        
+        .current-theme {
+            background: var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 0.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎨 Spectra Dark Mode Demo</h1>
+        
+        <div class="theme-controls">
+            <h2>Theme Controls</h2>
+            <button class="theme-btn" onclick="setTheme('light')">☀️ Light</button>
+            <button class="theme-btn" onclick="setTheme('dark')">🌙 Dark</button>
+            <button class="theme-btn" onclick="setTheme('auto')">🔄 Auto</button>
+            
+            <div class="current-theme" id="current-theme">Current: Light</div>
+        </div>
+        
+        <div class="demo-card">
+            <h3>Card Example</h3>
+            <p>This demonstrates how cards look with different themes applied.</p>
+            <p class="text-muted">This is muted text to show secondary colors.</p>
+        </div>
+        
+        <div class="demo-card">
+            <h3>Form Elements</h3>
+            <input type="text" class="demo-input" placeholder="Sample input field">
+            <input type="email" class="demo-input" placeholder="email@example.com">
+            <div>
+                <button class="demo-button">Primary Button</button>
+                <button class="demo-button secondary">Secondary</button>
+                <button class="demo-button danger">Danger</button>
+            </div>
+        </div>
+        
+        <div class="demo-card">
+            <h3>Theme Features</h3>
+            <ul>
+                <li><strong>Automatic Detection:</strong> Respects system preference with 'auto' theme</li>
+                <li><strong>Persistent:</strong> Theme choice saved to localStorage</li>
+                <li><strong>Site-wide:</strong> Applied across all Spectra pages</li>
+                <li><strong>Keyboard Shortcut:</strong> Press Ctrl/Cmd + Shift + T to toggle</li>
+                <li><strong>Navbar Toggle:</strong> Click the theme button in the navbar</li>
+            </ul>
+            
+            <h4>CSS Variables Used:</h4>
+            <div style="font-family: monospace; font-size: 0.9em;">
+                <div>--text-primary: <span style="color: var(--text-primary)">Text color</span></div>
+                <div>--text-secondary: <span style="color: var(--text-secondary)">Secondary text</span></div>
+                <div>--card-bg: <span style="background: var(--card-bg); padding: 2px 8px; border-radius: 4px;">Card background</span></div>
+                <div>--accent-color: <span style="color: var(--accent-color); font-weight: bold;">Accent color</span></div>
+                <div>--border-color: <span style="border: 2px solid var(--border-color); padding: 2px 8px; display: inline-block; margin: 2px;">Border</span></div>
+            </div>
+        </div>
+        
+        <div class="demo-card">
+            <h3>Integration Status</h3>
+            <p>✅ Dashboard - Theme variables applied</p>
+            <p>✅ Login page - Theme variables applied</p>
+            <p>✅ Friends page - Theme variables applied</p>
+            <p>✅ Navbar - Theme variables applied</p>
+            <p>✅ Settings page - Theme picker integrated</p>
+        </div>
+    </div>
+
+    <script src="js/theme-manager.js"></script>
+    <script>
+        function setTheme(theme) {
+            if (window.themeManager) {
+                window.themeManager.setTheme(theme);
+                updateCurrentThemeDisplay();
+            }
+        }
+        
+        function updateCurrentThemeDisplay() {
+            const currentThemeEl = document.getElementById('current-theme');
+            if (window.themeManager && currentThemeEl) {
+                const theme = window.themeManager.getCurrentTheme();
+                const effectiveTheme = window.themeManager.getEffectiveTheme();
+                currentThemeEl.textContent = `Current: ${theme}${theme === 'auto' ? ` (${effectiveTheme})` : ''}`;
+            }
+        }
+        
+        // Update display when theme changes
+        window.addEventListener('themeChanged', updateCurrentThemeDisplay);
+        
+        // Initialize display
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(updateCurrentThemeDisplay, 100);
+        });
+        
+        // Test keyboard shortcut
+        console.log('🎨 Theme test page loaded! Try:');
+        console.log('- Clicking theme buttons');
+        console.log('- Keyboard shortcut: Ctrl/Cmd + Shift + T');
+        console.log('- Changing system theme preference');
+    </script>
+</body>
+</html>

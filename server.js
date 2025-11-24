@@ -41,6 +41,16 @@ app.get("/leaderboard", (req, res) => {
 app.get("/friends", (req, res) => {
   res.sendFile(__dirname + "/public/friends.html");
 });
+
+// Route to serve footprint.html
+app.get("/footprint", (req, res) => {
+  res.sendFile(__dirname + "/public/footprint.html");
+});
+
+// Route to serve settings.html
+app.get("/settings", (req, res) => {
+  res.sendFile(__dirname + "/public/settings.html");
+});
 //////////////////////////////////////
 //END ROUTES TO SERVE HTML FILES
 //////////////////////////////////////
@@ -51,24 +61,32 @@ app.get("/friends", (req, res) => {
 // Helper function to create a MySQL connection
 async function createConnection() {
   return await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'spectra',
   });
 }
 
+// JWT Secret with fallback
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+
 // **Authorization Middleware: Verify JWT Token and Check User in Database**
 async function authenticateToken(req, res, next) {
-  const token = req.headers["authorization"];
+  const authHeader = req.headers["authorization"];
 
-  if (!token) {
+  if (!authHeader) {
     return res
       .status(401)
       .json({ message: "Access denied. No token provided." });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+  // Handle both "Bearer token" and "token" formats
+  const token = authHeader.startsWith('Bearer ') 
+    ? authHeader.substring(7) 
+    : authHeader;
+
+  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
     if (err) {
       return res.status(403).json({ message: "Invalid token." });
     }
@@ -172,7 +190,7 @@ app.post("/api/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ email: user.email }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -300,29 +318,43 @@ app.get("/api/friends", authenticateToken, async (req, res) => {
     const [friendsRows] = await connection.execute(`
       SELECT DISTINCT
         CASE 
-          WHEN user_email = ? THEN friend_email 
-          ELSE user_email 
-        END as friend_email
+          WHEN f.user_email = ? THEN f.friend_email 
+          ELSE f.user_email 
+        END as friend_email,
+        u.first_name,
+        u.last_name
       FROM friendships f
-      WHERE (user_email = ? OR friend_email = ?) 
-      AND status = 'accepted'
-    `, [userEmail, userEmail, userEmail]);
+      JOIN user u ON u.email = (
+        CASE 
+          WHEN f.user_email = ? THEN f.friend_email 
+          ELSE f.user_email 
+        END
+      )
+      WHERE (f.user_email = ? OR f.friend_email = ?) 
+      AND f.status = 'accepted'
+    `, [userEmail, userEmail, userEmail, userEmail]);
 
     // Get pending friend requests received (only where user is the recipient)
     const [receivedRows] = await connection.execute(`
       SELECT DISTINCT 
         f.user_email as requester_email, 
+        u.first_name,
+        u.last_name,
         f.created_at
       FROM friendships f
+      JOIN user u ON u.email = f.user_email
       WHERE f.friend_email = ? AND f.status = 'pending'
     `, [userEmail]);
 
     // Get pending friend requests sent (only where user is the sender)
     const [sentRows] = await connection.execute(`
       SELECT 
-        f.friend_email as recipient_email, 
+        f.friend_email as recipient_email,
+        u.first_name,
+        u.last_name, 
         f.created_at
       FROM friendships f
+      JOIN user u ON u.email = f.friend_email
       WHERE f.user_email = ? AND f.status = 'pending'
       ORDER BY f.created_at DESC
     `, [userEmail]);
@@ -493,60 +525,154 @@ app.delete("/api/friends/remove", authenticateToken, async (req, res) => {
   }
 });
 
-// // Save/update activity footprint for the logged-in user
-// app.post("/api/footprint/save", authenticateToken, async (req, res) => {
-//   // numbers only; default to 0
-//   const toNum = (v) => (isNaN(v) || v === "" || v == null ? 0 : Number(v));
-//   const steps         = toNum(req.body.steps);
-//   const walk_hours    = toNum(req.body.walk);
-//   const run_hours     = toNum(req.body.run);
-//   const cycle_hours   = toNum(req.body.cycle);
-//   const hiking_hours  = toNum(req.body.hike);
-//   const swimming_hours= toNum(req.body.swim);
+// Route: Cancel sent friend request
+app.delete("/api/friends/cancel", authenticateToken, async (req, res) => {
+  const { friendEmail } = req.body;
+  const userEmail = req.user.email;
 
-//   try {
-//     const conn = await createConnection();
-//     const [result] = await conn.execute(
-//       `UPDATE user
-//          SET steps = ?,
-//              walk_hours = ?,
-//              run_hours = ?,
-//              cycle_hours = ?,
-//              hiking_hours = ?,
-//              swimming_hours = ?
-//        WHERE email = ?`,
-//       [steps, walk_hours, run_hours, cycle_hours, hiking_hours, swimming_hours, req.user.email]
-//     );
-//     await conn.end();
+  if (!friendEmail) {
+    return res.status(400).json({ message: "Friend email is required." });
+  }
 
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: "User not found." });
-//     }
-//     res.json({ message: "Activity saved." });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Database error saving activity." });
-//   }
-// });
+  try {
+    const connection = await createConnection();
 
-// // (Optional) fetch current values to prefill the form
-// app.get("/api/footprint", authenticateToken, async (req, res) => {
-//   try {
-//     const conn = await createConnection();
-//     const [rows] = await conn.execute(
-//       `SELECT steps, walk_hours AS walk, run_hours AS run,
-//               cycle_hours AS cycle, hiking_hours AS hike, swimming_hours AS swim
-//          FROM user WHERE email = ?`,
-//       [req.user.email]
-//     );
-//     await conn.end();
-//     if (!rows.length) return res.status(404).json({ message: "User not found." });
-//     res.json(rows[0]);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Database error fetching activity." });
-//   }
-// });
+    // Remove the pending request (only if current user sent it)
+    const [result] = await connection.execute(`
+      DELETE FROM friendships 
+      WHERE user_email = ? AND friend_email = ? AND status = 'pending'
+    `, [userEmail, friendEmail]);
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Pending friend request not found." });
+    }
+
+    res.status(200).json({ message: "Friend request cancelled successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error cancelling friend request." });
+  }
+});
+
+// Route: Search for users
+app.get("/api/users/search", authenticateToken, async (req, res) => {
+  try {
+    const connection = await createConnection();
+    const userEmail = req.user.email;
+    const searchQuery = req.query.q;
+
+    if (!searchQuery || searchQuery.trim().length < 2) {
+      return res.status(400).json({ message: "Search query must be at least 2 characters long." });
+    }
+
+    const searchTerm = `%${searchQuery.toLowerCase()}%`;
+
+    // Search for users by email, first name, or last name
+    // Exclude the current user and users who are already friends
+    const [userRows] = await connection.execute(`
+      SELECT DISTINCT u.email, u.first_name, u.last_name,
+        CASE 
+          WHEN f.status IS NULL THEN 'none'
+          WHEN f.status = 'pending' AND f.user_email = ? THEN 'sent'
+          WHEN f.status = 'pending' AND f.friend_email = ? THEN 'received'
+          WHEN f.status = 'accepted' THEN 'friends'
+          ELSE 'none'
+        END as relationship_status
+      FROM user u
+      LEFT JOIN friendships f ON (
+        (f.user_email = ? AND f.friend_email = u.email) OR
+        (f.friend_email = ? AND f.user_email = u.email)
+      )
+      WHERE u.email != ? 
+      AND (
+        LOWER(u.email) LIKE ? OR 
+        LOWER(u.first_name) LIKE ? OR 
+        LOWER(u.last_name) LIKE ? OR
+        LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE ?
+      )
+      ORDER BY 
+        CASE 
+          WHEN LOWER(u.email) = LOWER(?) THEN 1
+          WHEN LOWER(u.email) LIKE ? THEN 2
+          WHEN LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE ? THEN 3
+          ELSE 4
+        END,
+        u.first_name, u.last_name
+      LIMIT 20
+    `, [
+      userEmail, userEmail, userEmail, userEmail, userEmail,
+      searchTerm, searchTerm, searchTerm, searchTerm,
+      searchQuery.toLowerCase(), `${searchQuery.toLowerCase()}%`, `%${searchQuery.toLowerCase()}%`
+    ]);
+
+    await connection.end();
+
+    res.status(200).json({
+      users: userRows,
+      query: searchQuery
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error searching for users." });
+  }
+});
+
+// Save/update activity footprint for the logged-in user
+app.post("/api/footprint/save", authenticateToken, async (req, res) => {
+  // numbers only; default to 0
+  const toNum = (v) => (isNaN(v) || v === "" || v == null ? 0 : Number(v));
+  const steps         = toNum(req.body.steps);
+  const walk_hours    = toNum(req.body.walk);
+  const run_hours     = toNum(req.body.run);
+  const cycle_hours   = toNum(req.body.cycle);
+  const hiking_hours  = toNum(req.body.hike);
+  const swimming_hours= toNum(req.body.swim);
+
+  try {
+    const conn = await createConnection();
+    const [result] = await conn.execute(
+      `UPDATE user
+         SET steps = ?,
+             walk_hours = ?,
+             run_hours = ?,
+             cycle_hours = ?,
+             hiking_hours = ?,
+             swimming_hours = ?
+       WHERE email = ?`,
+      [steps, walk_hours, run_hours, cycle_hours, hiking_hours, swimming_hours, req.user.email]
+    );
+    await conn.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    res.json({ message: "Activity saved." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error saving activity." });
+  }
+});
+
+// (Optional) fetch current values to prefill the form
+app.get("/api/footprint", authenticateToken, async (req, res) => {
+  try {
+    const conn = await createConnection();
+    const [rows] = await conn.execute(
+      `SELECT steps, walk_hours AS walk, run_hours AS run,
+              cycle_hours AS cycle, hiking_hours AS hike, swimming_hours AS swim
+         FROM user WHERE email = ?`,
+      [req.user.email]
+    );
+    await conn.end();
+    if (!rows.length) return res.status(404).json({ message: "User not found." });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error fetching activity." });
+  }
+});
 
 // ===== DAILY ACTIVITY (manual values; reset each day) =====
 
@@ -777,6 +903,192 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
   }
 });
 
+//////////////////////////////////////
+// USER SETTINGS API ENDPOINTS
+//////////////////////////////////////
+
+// GET user settings
+app.get("/api/settings", authenticateToken, async (req, res) => {
+  try {
+    const conn = await createConnection();
+    const [rows] = await conn.execute(
+      `SELECT theme, notifications_enabled, email_notifications, activity_privacy, 
+              units, timezone, language, weekly_goal_steps, weekly_goal_distance
+       FROM user_settings WHERE user_email = ?`,
+      [req.user.email]
+    );
+    await conn.end();
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Settings not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("GET /api/settings error", err);
+    res.status(500).json({ message: "Server error fetching settings." });
+  }
+});
+
+// POST/PUT user settings (create or update)
+app.post("/api/settings", authenticateToken, async (req, res) => {
+  const {
+    theme = 'light',
+    notifications_enabled = true,
+    email_notifications = true,
+    activity_privacy = 'public',
+    units = 'metric',
+    timezone = 'UTC',
+    language = 'en',
+    weekly_goal_steps = 70000,
+    weekly_goal_distance = 50.0
+  } = req.body;
+
+  try {
+    const conn = await createConnection();
+    
+    // Check if settings exist
+    const [existing] = await conn.execute(
+      'SELECT user_email FROM user_settings WHERE user_email = ?',
+      [req.user.email]
+    );
+
+    if (existing.length > 0) {
+      // Update existing settings
+      await conn.execute(
+        `UPDATE user_settings 
+         SET theme = ?, notifications_enabled = ?, email_notifications = ?, 
+             activity_privacy = ?, units = ?, timezone = ?, language = ?, 
+             weekly_goal_steps = ?, weekly_goal_distance = ?, updated_at = NOW()
+         WHERE user_email = ?`,
+        [theme, notifications_enabled, email_notifications, activity_privacy, 
+         units, timezone, language, weekly_goal_steps, weekly_goal_distance, req.user.email]
+      );
+    } else {
+      // Insert new settings
+      await conn.execute(
+        `INSERT INTO user_settings 
+         (user_email, theme, notifications_enabled, email_notifications, 
+          activity_privacy, units, timezone, language, weekly_goal_steps, weekly_goal_distance)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [req.user.email, theme, notifications_enabled, email_notifications, 
+         activity_privacy, units, timezone, language, weekly_goal_steps, weekly_goal_distance]
+      );
+    }
+
+    await conn.end();
+    res.json({ message: "Settings saved successfully" });
+  } catch (err) {
+    console.error("POST /api/settings error", err);
+    res.status(500).json({ message: "Server error saving settings." });
+  }
+});
+
+//////////////////////////////////////
+// PRIVACY API ENDPOINTS
+//////////////////////////////////////
+
+// Check if current user can view target user's activity
+app.get("/api/privacy/can-view/:targetEmail", authenticateToken, async (req, res) => {
+  const targetEmail = decodeURIComponent(req.params.targetEmail);
+  const currentUserEmail = req.user.email;
+
+  try {
+    const conn = await createConnection();
+    
+    // If viewing own profile, always allow
+    if (currentUserEmail === targetEmail) {
+      await conn.end();
+      return res.json({ canView: true, reason: 'own_profile' });
+    }
+
+    // Get target user's privacy settings
+    const [privacyRows] = await conn.execute(
+      'SELECT activity_privacy FROM user_settings WHERE user_email = ?',
+      [targetEmail]
+    );
+
+    const privacyLevel = privacyRows.length > 0 ? privacyRows[0].activity_privacy : 'public';
+
+    // Handle different privacy levels
+    switch (privacyLevel) {
+      case 'private':
+        await conn.end();
+        return res.json({ canView: false, reason: 'private' });
+        
+      case 'friends':
+        // Check if users are friends
+        const [friendRows] = await conn.execute(
+          `SELECT 1 FROM friendships 
+           WHERE ((user_email = ? AND friend_email = ?) OR (user_email = ? AND friend_email = ?))
+           AND status = 'accepted'`,
+          [currentUserEmail, targetEmail, targetEmail, currentUserEmail]
+        );
+        
+        const areFriends = friendRows.length > 0;
+        await conn.end();
+        return res.json({ 
+          canView: areFriends, 
+          reason: areFriends ? 'friends' : 'friends_only' 
+        });
+        
+      case 'public':
+      default:
+        await conn.end();
+        return res.json({ canView: true, reason: 'public' });
+    }
+  } catch (err) {
+    console.error("Privacy check error:", err);
+    res.status(500).json({ message: "Error checking privacy permissions" });
+  }
+});
+
+// Get user's privacy-filtered activity data
+app.get("/api/activity/user/:targetEmail", authenticateToken, async (req, res) => {
+  const targetEmail = decodeURIComponent(req.params.targetEmail);
+  const currentUserEmail = req.user.email;
+
+  try {
+    // First check privacy permissions
+    const privacyCheck = await fetch(`http://localhost:3000/api/privacy/can-view/${encodeURIComponent(targetEmail)}`, {
+      headers: { 'Authorization': req.headers.authorization }
+    });
+    
+    if (!privacyCheck.ok) {
+      return res.status(403).json({ message: "Cannot access user activity" });
+    }
+    
+    const privacyResult = await privacyCheck.json();
+    if (!privacyResult.canView) {
+      return res.status(403).json({ message: "User's activity is private" });
+    }
+
+    const conn = await createConnection();
+    
+    // Get user's activity data
+    const [activityRows] = await conn.execute(
+      `SELECT steps, walk_hours, run_hours, cycle_hours, hiking_hours, swimming_hours
+       FROM user WHERE email = ?`,
+      [targetEmail]
+    );
+
+    await conn.end();
+
+    if (activityRows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      user_email: targetEmail,
+      activity: activityRows[0],
+      privacy_level: privacyResult.reason
+    });
+
+  } catch (err) {
+    console.error("Activity fetch error:", err);
+    res.status(500).json({ message: "Error fetching activity data" });
+  }
+});
 
 //////////////////////////////////////
 // END ROUTES TO HANDLE API REQUESTS

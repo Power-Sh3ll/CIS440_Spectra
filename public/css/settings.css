@@ -1,0 +1,338 @@
+/* Settings Page Styles - Matching Spectra Design System */
+:root,
+[data-theme="light"]{
+  --cream:#f3f9d2;
+  --beaver:#ab8476;
+  --indigo-dye:#2b4162;
+  --dartmouth-green:#0b6e4f;
+  --blood-red:#621708;
+
+  --muted:#5f718d;
+  --card-bg:#ffffff;
+  --glass: rgba(255,255,255,0.98);
+  --radius:18px;
+  --shadow: 0 20px 45px rgba(31,42,68,0.08);
+
+  --bg: linear-gradient(180deg, var(--cream), #f7fbf9);
+  --card-bg-grad: linear-gradient(180deg, #ffffff, #fbfeff);
+  --glass-shadow: 0 10px 30px rgba(20,60,120,0.06);
+}
+
+/* Base */
+*{ box-sizing:border-box; }
+html,body{
+  height:100%;
+  margin:0;
+  font-family:"Advent Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--indigo-dye);
+  font-size:18px;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.settings-container {
+  min-width: 80vw;
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 24px;
+  background: var(--card-bg-grad);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
+  min-height: calc(100vh - 120px);
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px 0;
+}
+
+.settings-header h1 {
+  font-size: 2.8rem;
+  color: var(--indigo-dye);
+  margin: 0 0 8px 0;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+.settings-header p {
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.settings-content {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(17,70,178,0.04);
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.settings-section {
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(37,50,71,0.06);
+}
+
+.settings-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-section h2 {
+  color: var(--indigo-dye);
+  font-size: 1.6rem;
+  margin: 0 0 20px 0;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(37,50,71,0.03);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.setting-item label {
+  font-weight: 600;
+  color: var(--indigo-dye);
+  flex: 1;
+  margin-right: 16px;
+  font-size: 1rem;
+}
+
+.setting-item select,
+.setting-item input[type="number"] {
+  padding: 12px 16px;
+  border: 2px solid rgba(17,70,178,0.08);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: var(--card-bg);
+  min-width: 180px;
+  transition: all 0.3s ease;
+  color: var(--indigo-dye);
+  font-family: "Advent Pro", sans-serif;
+  font-weight: 500;
+}
+
+.setting-item select:focus,
+.setting-item input[type="number"]:focus {
+  outline: none;
+  border-color: var(--dartmouth-green);
+  box-shadow: 0 0 0 4px rgba(11, 110, 79, 0.1);
+}
+
+/* Toggle Switch Styles - Matching site design */
+.toggle-switch {
+  appearance: none;
+  width: 56px;
+  height: 30px;
+  background: var(--muted);
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0;
+  border: 2px solid transparent;
+}
+
+.toggle-switch:checked {
+  background: var(--dartmouth-green);
+}
+
+.toggle-switch:focus {
+  box-shadow: 0 0 0 4px rgba(11, 110, 79, 0.15);
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  top: 1px;
+  left: 1px;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-switch:checked::before {
+  transform: translateX(26px);
+}
+
+/* Action Buttons - Matching site style */
+.settings-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(37,50,71,0.06);
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-family: "Advent Pro", sans-serif;
+  letter-spacing: 0.4px;
+  min-width: 140px;
+}
+
+.btn-primary {
+  background: var(--dartmouth-green);
+  color: white;
+  box-shadow: 0 8px 20px rgba(11, 110, 79, 0.25);
+}
+
+.btn-primary:hover {
+  background: #0a5c43;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(11, 110, 79, 0.35);
+}
+
+.btn-secondary {
+  background: var(--muted);
+  color: white;
+  box-shadow: 0 8px 20px rgba(95, 113, 141, 0.25);
+}
+
+.btn-secondary:hover {
+  background: #4a5f7a;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(95, 113, 141, 0.35);
+}
+
+/* Status Messages */
+.settings-message {
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: "Advent Pro", sans-serif;
+}
+
+.settings-message.success {
+  background: rgba(11, 110, 79, 0.1);
+  color: var(--dartmouth-green);
+  border: 1px solid rgba(11, 110, 79, 0.2);
+}
+
+.settings-message.error {
+  background: rgba(98, 23, 8, 0.1);
+  color: var(--blood-red);
+  border: 1px solid rgba(98, 23, 8, 0.2);
+}
+
+.settings-message.info {
+  background: rgba(43, 65, 98, 0.1);
+  color: var(--indigo-dye);
+  border: 1px solid rgba(43, 65, 98, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-container {
+    margin: 20px;
+    padding: 20px;
+    min-width: auto;
+  }
+  
+  .settings-content {
+    padding: 24px;
+  }
+
+  .settings-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .setting-item label {
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  
+  .setting-item select,
+  .setting-item input[type="number"] {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .settings-actions {
+    flex-direction: column;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] {
+  --bg: linear-gradient(180deg, #1a1a1a, #242424);
+  --card-bg: #2d2d2d;
+  --card-bg-grad: linear-gradient(180deg, #2d2d2d, #353535);
+  --indigo-dye: #e0e0e0;
+  --muted: #b0b0b0;
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .setting-item select,
+[data-theme="dark"] .setting-item input[type="number"] {
+  background: #404040;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .setting-item select:focus,
+[data-theme="dark"] .setting-item input[type="number"]:focus {
+  border-color: #51cf66;
+  box-shadow: 0 0 0 4px rgba(81, 207, 102, 0.15);
+}
+
+[data-theme="dark"] .toggle-switch:checked {
+  background: #51cf66;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: #51cf66;
+  box-shadow: 0 8px 20px rgba(81, 207, 102, 0.25);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background: #40c057;
+  box-shadow: 0 12px 25px rgba(81, 207, 102, 0.35);
+}

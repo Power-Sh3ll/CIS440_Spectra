@@ -10,11 +10,7 @@ const userEmailEl = document.getElementById('user-email');
 const userFirstNameEl = document.getElementById('user-first-name');
 const userLastNameEl = document.getElementById('user-last-name');
 const userDobEl = document.getElementById('user-dob');
-const logoutBtn = document.getElementById('logout-btn');
 const editProfileBtn = document.getElementById('edit-profile-btn');
-const goToDashboardBtn = document.getElementById('go-to-dashboard-btn');
-const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
-const viewFriendsBtn = document.getElementById('view-friends-btn');
 // Load user profile data
 async function loadProfile() {
     try {
@@ -47,30 +43,9 @@ async function loadProfile() {
     }
 }
 
-// Logout functionality
-logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('jwtToken');
-    window.location.href = '/';
-});
-
 // Edit profile functionality (placeholder)
 editProfileBtn.addEventListener('click', () => {
     alert('Edit profile functionality coming soon!');
-});
-
-// Go to dashboard
-goToDashboardBtn.addEventListener('click', () => {
-    window.location.href = '/dashboard';
-});
-
-// View leaderboard
-viewLeaderboardBtn.addEventListener('click', () => {
-    window.location.href = '/leaderboard';
-});
-
-// View friends
-viewFriendsBtn.addEventListener('click', () => {
-    window.location.href = '/friends';
 });
 
 // Load profile when page loads

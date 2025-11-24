@@ -1,15 +1,92 @@
 /* ===== Activity Footprint (trimmed & themed to Profile) ===== */
 
-/* Palette + shared tokens (match profile.css) */
-:root{
+/* Theme Variables */
+:root,
+[data-theme="light"] {
+  /* Light Theme (Default) */
   --cream:#f3f9d2;
   --beaver:#ab8476;
   --indigo-dye:#2b4162;
   --dartmouth-green:#0b6e4f;
+  --blood-red:#621708;
 
   --muted:#5f718d;
+  --card-bg:#ffffff;
   --glass: rgba(255,255,255,0.98);
+  --radius:18px;
   --shadow: 0 20px 45px rgba(31,42,68,0.08);
+
+  --bg: linear-gradient(180deg, var(--cream), #f7fbf9);
+  --card-bg-grad: linear-gradient(180deg, #ffffff, #fbfeff);
+  --glass-shadow: 0 10px 30px rgba(20,60,120,0.06);
+
+  --text-primary: var(--indigo-dye);
+  --text-secondary: var(--muted);
+  --text-muted: #8a9ba8;
+  --border-color: rgba(37,50,71,0.06);
+  --border-dark: rgba(37,50,71,0.12);
+  --input-bg: var(--card-bg);
+  --input-border: rgba(17,70,178,0.08);
+  --accent-color: var(--dartmouth-green);
+  --danger-color: var(--blood-red);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --cream: #1a1a1a;
+  --beaver: #8b6f63;
+  --indigo-dye: #e0e0e0;
+  --dartmouth-green: #51cf66;
+  --blood-red: #ff6b6b;
+
+  --muted: #b0b0b0;
+  --card-bg: #2d2d2d;
+  --glass: rgba(45,45,45,0.95);
+  --shadow: 0 20px 45px rgba(0,0,0,0.25);
+
+  --bg: linear-gradient(180deg, #1a1a1a, #242424);
+  --card-bg-grad: linear-gradient(180deg, #2d2d2d, #353535);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --border-color: rgba(255,255,255,0.08);
+  --border-dark: rgba(255,255,255,0.15);
+  --input-bg: #404040;
+  --input-border: #555;
+  --accent-color: #51cf66;
+  --danger-color: #ff6b6b;
+}
+
+/* Auto theme detection */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --cream: #1a1a1a;
+    --beaver: #8b6f63;
+    --indigo-dye: #e0e0e0;
+    --dartmouth-green: #51cf66;
+    --blood-red: #ff6b6b;
+
+    --muted: #b0b0b0;
+    --card-bg: #2d2d2d;
+    --glass: rgba(45,45,45,0.95);
+    --shadow: 0 20px 45px rgba(0,0,0,0.25);
+
+    --bg: linear-gradient(180deg, #1a1a1a, #242424);
+    --card-bg-grad: linear-gradient(180deg, #2d2d2d, #353535);
+    --glass-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #888888;
+    --border-color: rgba(255,255,255,0.08);
+    --border-dark: rgba(255,255,255,0.15);
+    --input-bg: #404040;
+    --input-border: #555;
+    --accent-color: #51cf66;
+    --danger-color: #ff6b6b;
+  }
 }
 
 /* Base */
@@ -17,13 +94,14 @@ html, body{
   height:100%;
   margin:0;
   font-family:"Advent Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  background: linear-gradient(180deg, var(--cream), #f7fbf9);
-  color: var(--indigo-dye);
+  background: var(--bg);
+  color: var(--text-primary);
   font-size: 18px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Layout container */
-.shell{ max-width:980px; margin:40px auto 70px; padding:24px; }
+.shell{ min-width:80vw; max-width:980px; margin:40px auto 70px; padding:24px; }
 
 /* Top toolbar (Back + Logout) */
 .toolbar{ display:flex; justify-content:flex-end; gap:10px; margin-bottom:8px; }
@@ -69,9 +147,9 @@ html, body{
 .field label{
   display:inline-flex; align-items:center; gap:8px;
   font-weight:800; margin:0 0 6px;
-  color: var(--indigo-dye);
+  color: var(--text-primary);
 }
-.field small{ color:var(--muted); font-weight:700; }
+.field small{ color:var(--text-secondary); font-weight:700; }
 
 /* Icon pill after the label text */
 .field label::after{
@@ -96,15 +174,16 @@ html, body{
   width:100%;
   padding:13px 16px;
   border-radius:14px;
-  border:1px solid rgba(43,65,98,.14);
-  background:#f9fcff;
+  border:1px solid var(--border-dark);
+  background:var(--input-bg);
+  color:var(--text-primary);
   font-size:16px;
   outline:none;
   transition:border-color .15s ease, box-shadow .15s ease;
 }
 .input:focus{
-  border-color:#7aa9a1;
-  box-shadow:0 0 0 4px rgba(11,110,79,.14);
+  border-color:var(--accent-color);
+  box-shadow:0 0 0 4px var(--border-color);
 }
 
 /* Submit button row */
