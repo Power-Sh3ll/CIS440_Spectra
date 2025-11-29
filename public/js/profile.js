@@ -15,6 +15,8 @@ const editProfileBtn = document.getElementById('edit-profile-btn');
 const goToDashboardBtn = document.getElementById('go-to-dashboard-btn');
 const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const viewFriendsBtn = document.getElementById('view-friends-btn');
+const viewBadgesBtn = document.getElementById('view-badges-btn');
+
 // Load user profile data
 async function loadProfile() {
     try {
@@ -72,6 +74,11 @@ viewLeaderboardBtn.addEventListener('click', () => {
 viewFriendsBtn.addEventListener('click', () => {
     window.location.href = '/friends';
 });
+
+viewBadgesBtn.addEventListener('click', () => {
+  window.location.href = '/badges';
+});
+
 
 // Load profile when page loads
 loadProfile();

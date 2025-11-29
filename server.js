@@ -57,6 +57,29 @@ async function createConnection() {
     database: process.env.DB_NAME,
   });
 }
+// Helper: award a badge to a user if they don't already have it
+async function giveBadgeIfNotEarned(conn, email, badgeCode) {
+  // check if user already has this badge
+  const [existing] = await conn.execute(
+    `SELECT ub.badge_id
+       FROM user_badges ub
+       JOIN badges b ON ub.badge_id = b.id
+      WHERE ub.user_email = ? AND b.code = ?`,
+    [email, badgeCode]
+  );
+  if (existing.length > 0) {
+    return; // already earned
+  }
+
+  // insert the badge for this user
+  await conn.execute(
+    `INSERT INTO user_badges (user_email, badge_id)
+       SELECT ?, id
+         FROM badges
+        WHERE code = ?`,
+    [email, badgeCode]
+  );
+}
 
 // **Authorization Middleware: Verify JWT Token and Check User in Database**
 async function authenticateToken(req, res, next) {
@@ -272,6 +295,10 @@ app.get("/api/leaderboard", authenticateToken, async (req, res) => {
 });
 
 
+// Route to serve badges/challenges page
+app.get("/badges", (req, res) => {
+  res.sendFile(__dirname + "/public/badges.html");
+});
 
 
 // Route: Get All Email Addresses
@@ -590,6 +617,28 @@ async function ensureDayRow(conn, email, day) {
   }
 }
 
+// Helper: award a badge to a user (if not already earned)
+async function awardBadge(conn, userEmail, badgeCode) {
+  // Find badge id by its code (e.g. 'MINUTES_150')
+  const [badgeRows] = await conn.execute(
+    "SELECT id FROM badges WHERE code = ?",
+    [badgeCode]
+  );
+
+  if (!badgeRows.length) {
+    console.warn("Badge code not found:", badgeCode);
+    return;
+  }
+
+  const badgeId = badgeRows[0].id;
+
+  // Insert only if not already present
+  await conn.execute(
+    `INSERT IGNORE INTO user_badges (user_email, badge_id)
+     VALUES (?, ?)`,
+    [userEmail, badgeId]
+  );
+}
 
 // GET /api/activity  -> today's values + goals
 // GET /api/activity  -> values + goals for a given day (or today)
@@ -639,6 +688,8 @@ app.get('/api/activity', authenticateToken, async (req, res) => {
 
 // POST /api/activity/update  -> save today's manual values
 // POST /api/activity/update  -> save values for the given day (or today)
+// POST /api/activity/update  -> save values for the given day (or today)
+// and award steps / minutes / calories badges
 app.post('/api/activity/update', authenticateToken, async (req, res) => {
   const toNum = (v, d = 0) =>
     v === '' || v == null || isNaN(v) ? d : Number(v);
@@ -673,18 +724,38 @@ app.post('/api/activity/update', authenticateToken, async (req, res) => {
       params
     );
 
-    await conn.end();
-
     if (!result.affectedRows) {
+      await conn.end();
       return res.status(404).json({ message: 'Row not found.' });
     }
 
+    // ---------- BADGE LOGIC (steps / minutes / calories) ----------
+
+    // Steps badges
+    if (steps >= 5000)  await giveBadgeIfNotEarned(conn, req.user.email, 'STEP_5K');
+    if (steps >= 10000) await giveBadgeIfNotEarned(conn, req.user.email, 'STEP_10K');
+    if (steps >= 20000) await giveBadgeIfNotEarned(conn, req.user.email, 'STEP_20K');
+
+    // 150 minute day
+    if (minutes >= 150) await giveBadgeIfNotEarned(conn, req.user.email, 'MINUTES_150');
+
+    // Calories badges
+    if (calories >= 500)  await giveBadgeIfNotEarned(conn, req.user.email, 'CAL_500');
+    if (calories >= 1000) await giveBadgeIfNotEarned(conn, req.user.email, 'CAL_1000');
+
+    // (streak badges can be added later with a 7-day check)
+
+    // --------------------------------------------------------------
+
+    await conn.end();
     res.json({ ok: true });
   } catch (err) {
     console.error('POST /api/activity/update error', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
 
 
 // POST /api/activity/goals  -> update goals on user row
@@ -716,6 +787,9 @@ app.post('/api/activity/goals', authenticateToken, async (req, res) => {
 // ==========================================
 // CARBON TRACKER (CO₂ savings) ROUTES
 // ==========================================
+// ==========================================
+// CARBON TRACKER (CO₂ savings) ROUTES
+// ==========================================
 app.post("/api/carbon/save", authenticateToken, async (req, res) => {
   const toNum = (v) => (isNaN(v) || v === "" || v == null ? 0 : Number(v));
 
@@ -727,7 +801,7 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
   const totKm  = toNum(req.body.totKm);
   const totCO2 = toNum(req.body.totCO2);
 
-  // NEW: optional day from body (YYYY-MM-DD). If invalid or missing, use CURDATE().
+  // optional day from body (YYYY-MM-DD). If invalid or missing, use CURDATE().
   let bodyDay = req.body.day;
   if (typeof bodyDay !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(bodyDay)) {
     bodyDay = null;
@@ -752,7 +826,7 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
       )
     `);
 
-    // Use COALESCE(?, CURDATE()) so we can pass NULL and still get today
+    // Upsert today's carbon stats
     await conn.execute(
       `INSERT INTO daily_carbon
          (user_email, day, walk_hours, run_hours, cycle_hours, hike_hours, swim_hours, total_km, total_co2)
@@ -769,6 +843,36 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
       [req.user.email, bodyDay, walk, run, cycle, hike, swim, totKm, totCO2]
     );
 
+    // ---------- BADGE LOGIC (CO₂ + distance totals) ----------
+
+    const [aggRows] = await conn.execute(
+      `SELECT 
+         COALESCE(SUM(total_km), 0)  AS km_total,
+         COALESCE(SUM(total_co2), 0) AS co2_total
+         FROM daily_carbon
+        WHERE user_email = ?`,
+      [req.user.email]
+    );
+
+    const kmTotal  = aggRows[0].km_total  || 0;
+    const co2Total = aggRows[0].co2_total || 0;
+
+    // CO₂ badges
+    if (co2Total >= 1)   await giveBadgeIfNotEarned(conn, req.user.email, 'CO2_1KG');
+    if (co2Total >= 25)  await giveBadgeIfNotEarned(conn, req.user.email, 'CO2_25KG');
+    if (co2Total >= 50)  await giveBadgeIfNotEarned(conn, req.user.email, 'CO2_50KG');
+
+    // Distance badges (adjust thresholds if you want)
+    if (kmTotal >= 42.2)  await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_MARATHON');
+    if (kmTotal >= 446)   await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_GRANDCANYON');
+    if (kmTotal >= 800)   await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_CAMINO');
+    if (kmTotal >= 3500)  await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_APPALACHIAN');
+    if (kmTotal >= 160)   await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_ANNAPURNA');
+    if (kmTotal >= 4265)  await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_PCT');
+    if (kmTotal >= 8850)  await giveBadgeIfNotEarned(conn, req.user.email, 'DIST_GREATWALL');
+
+    // ---------------------------------------------------------
+
     await conn.end();
     res.json({ ok: true, message: "Carbon data saved successfully." });
   } catch (err) {
@@ -777,6 +881,111 @@ app.post("/api/carbon/save", authenticateToken, async (req, res) => {
   }
 });
 
+// ==========================================
+// BADGE HELPERS
+// ==========================================
+async function awardBadgeByCode(conn, userEmail, badgeCode) {
+  // Insert a row in user_badges if it doesn't already exist
+  await conn.execute(
+    `
+    INSERT INTO user_badges (user_email, badge_id)
+    SELECT ?, b.id
+    FROM badges b
+    WHERE b.code = ?
+      AND NOT EXISTS (
+        SELECT 1 FROM user_badges ub
+        WHERE ub.user_email = ? AND ub.badge_id = b.id
+      )
+    `,
+    [userEmail, badgeCode, userEmail]
+  );
+}
+
+// Check activity-based badges (per-day stats)
+async function checkActivityBadges(conn, userEmail, stats) {
+  const { steps, minutes, calories } = stats;
+
+  // 👉 make sure these codes match your badges table
+  if (minutes >= 150) {
+    await awardBadgeByCode(conn, userEmail, "ACTIVE_MINUTES_150");
+  }
+
+  if (steps >= 5000) {
+    await awardBadgeByCode(conn, userEmail, "STEPS_5K");
+  }
+  if (steps >= 10000) {
+    await awardBadgeByCode(conn, userEmail, "STEPS_10K");
+  }
+  if (steps >= 20000) {
+    await awardBadgeByCode(conn, userEmail, "STEPS_20K");
+  }
+
+  if (calories >= 500) {
+    await awardBadgeByCode(conn, userEmail, "CALORIES_500");
+  }
+  if (calories >= 1000) {
+    await awardBadgeByCode(conn, userEmail, "CALORIES_1000");
+  }
+
+  // You can add more here later: streaks, leaderboard, etc.
+}
+
+// ==========================================
+// BADGES API
+// ==========================================
+
+// Get all badges plus which ones the user has earned
+app.get("/api/user/badges", authenticateToken, async (req, res) => {
+  try {
+    const conn = await createConnection();
+
+    // All badge definitions
+    const [allBadges] = await conn.execute(
+      `SELECT id, code, name, description, category, icon
+         FROM badges
+         ORDER BY category, id`
+    );
+
+    // What this user has earned
+    const [earnedRows] = await conn.execute(
+      `SELECT badge_id, earned_at
+         FROM user_badges
+        WHERE user_email = ?`,
+      [req.user.email]
+    );
+
+    await conn.end();
+
+    const earnedMap = new Map(
+      earnedRows.map(row => [row.badge_id, row.earned_at])
+    );
+
+    const earned = [];
+    const locked = [];
+
+    for (const b of allBadges) {
+      const badgeObj = {
+        id: b.id,
+        code: b.code,
+        name: b.name,
+        description: b.description,
+        category: b.category,
+        icon: b.icon,
+        earnedAt: earnedMap.get(b.id) || null
+      };
+      if (badgeObj.earnedAt) {
+        earned.push(badgeObj);
+      } else {
+        locked.push(badgeObj);
+      }
+    }
+
+    res.json({ earned, locked });
+  } catch (err) {
+    console.error("GET /api/user/badges error", err);
+    res.status(500).json({ message: "Error fetching badges" });
+  }
+});
 
 //////////////////////////////////////
 // END ROUTES TO HANDLE API REQUESTS

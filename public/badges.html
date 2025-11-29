@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Badges & Challenges - Spectra</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/badges.css" />
+</head>
+<body>
+  <img src="/Assets/Logo.png" alt="Spectra logo" class="logo">
+
+  <div class="container">
+    <header class="badges-header">
+      <h1>Badges &amp; Challenges</h1>
+      <button id="back-to-profile" class="btn back">Back to Profile</button>
+    </header>
+
+    <main>
+      <section class="summary">
+        <div class="summary-card">
+          <h2>Your Progress</h2>
+          <p><span id="earned-count">0</span> / <span id="total-count">0</span> badges earned</p>
+        </div>
+      </section>
+
+      <section class="badge-section">
+        <h2>Earned</h2>
+        <div id="earned-list" class="badge-grid empty-msg-parent">
+          <p class="empty-msg" id="earned-empty">No badges yet — go crush some goals!</p>
+        </div>
+      </section>
+
+      <section class="badge-section">
+        <h2>Locked</h2>
+        <div id="locked-list" class="badge-grid empty-msg-parent">
+          <p class="empty-msg" id="locked-empty">Nothing locked... somehow. 👀</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/badges.js"></script>
+</body>
+</html>
