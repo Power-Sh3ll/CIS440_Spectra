@@ -158,10 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
     .getElementById('leaderboardBtn')
     ?.addEventListener('click', () => (location.href = '/leaderboard'));
   document
-    .getElementById('challengesBtn')
-    ?.addEventListener('click', () =>
-      alert('Challenges coming soon ✨')
-    );
+  .getElementById('challengesBtn')
+  ?.addEventListener('click', () => {
+    location.href = '/badges';
+  });
+
 
   // --------- Logout / Refresh ---------
   logoutBtn?.addEventListener('click', () => {
