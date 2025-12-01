@@ -120,10 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------- Tab switching (persists to hash + localStorage) ---------
   function setTab(tab) {
     const isCarbon = tab === 'carbon';
+    
+    // Get correct tab elements
+    const activityTab = document.getElementById('activityTab');
+    const carbonTabEl = document.getElementById('carbonTab');
 
+    // Update button states
     activityTab?.classList.toggle('segmented__btn--active', !isCarbon);
-    carbonTab?.classList.toggle('segmented__btn--active', isCarbon);
+    carbonTabEl?.classList.toggle('segmented__btn--active', isCarbon);
 
+    // Immediate toggle for better responsiveness
     fitnessView?.classList.toggle('hidden', isCarbon);
     carbonView?.classList.toggle('hidden', !isCarbon);
 
@@ -139,8 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  activityTab?.addEventListener('click', () => setTab('fitness'));
-  carbonTab?.addEventListener('click', () => setTab('carbon'));
+  // Tab button event listeners
+  document.getElementById('activityTab')?.addEventListener('click', () => setTab('fitness'));
+  document.getElementById('carbonTab')?.addEventListener('click', () => setTab('carbon'));
 
   const initial =
     location.hash === '#carbon'
@@ -152,8 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --------- Navigation ---------
   document
-    .getElementById('profileBtn')
-    ?.addEventListener('click', () => (location.href = '/profile'));
+    .getElementById('friendsBtn')
+    ?.addEventListener('click', () => (location.href = '/friends'));
   document
     .getElementById('leaderboardBtn')
     ?.addEventListener('click', () => (location.href = '/leaderboard'));
@@ -162,6 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
   ?.addEventListener('click', () => {
     location.href = '/badges';
   });
+  document
+    .getElementById('carbonForestBtn')
+    ?.addEventListener('click', () => (location.href = '/carbon-forest.html'));
 
 
   // --------- Logout / Refresh ---------

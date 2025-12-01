@@ -9,24 +9,46 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/badges.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-  <img src="/Assets/Logo.png" alt="Spectra logo" class="logo">
+  <!-- TOP NAV / HEADER -->
+  <header class="topbar" role="banner">
+    <div class="topbar__left">
+      <a href="/dashboard" class="brand" aria-label="Home">
+        <img src="/Assets/Logo.png" alt="Spectra logo" class="brand__logo">
+        <span class="brand__name">Spectra</span>
+      </a>
+    </div>
 
-  <div class="container">
-    <header class="badges-header">
-      <h1>Badges</h1>
-      <button id="back-to-profile" class="btn back">Back to Profile</button>
-    </header>
+    <div class="topbar__center">
+      <h1 class="page-title">Badges</h1>
+    </div>
 
-    <main>
-      <section class="summary">
-        <div class="summary-card">
-          <h2>Your Progress</h2>
-          <p><span id="earned-count">0</span> / <span id="total-count">0</span> badges earned</p>
-        </div>
-      </section>
+    <div class="topbar__right">
+      <nav class="quick-nav" aria-label="quick navigation">
+        <button id="dashboardBtn" class="btn btn--ghost">Dashboard</button>
+        <button id="friendsBtn" class="btn btn--ghost">Friends</button>
+        <button id="leaderboardBtn" class="btn btn--ghost">Leaderboard</button>
+        <button id="badgesBtn" class="btn btn--ghost btn--active">Badges</button>
+        <button id="carbonForestBtn" class="btn btn--ghost">Carbon Forest</button>
+      </nav>
+
+      <div class="actions">
+        <button id="refreshButton" class="btn btn--success">Refresh</button>
+        <button id="logoutButton" class="btn btn--primary">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container" role="main">
+    <section class="summary">
+      <div class="summary-card">
+        <h2>Your Progress</h2>
+        <p><span id="earned-count">0</span> / <span id="total-count">0</span> badges earned</p>
+      </div>
+    </section>
 
       <section class="badge-section">
         <h2>Earned</h2>
@@ -41,8 +63,7 @@
           <p class="empty-msg" id="locked-empty">Nothing locked... somehow. 👀</p>
         </div>
       </section>
-    </main>
-  </div>
+  </main>
 
   <script src="/js/badges.js"></script>
 </body>

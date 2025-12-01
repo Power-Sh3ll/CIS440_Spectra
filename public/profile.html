@@ -10,19 +10,40 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 <body>
-  <!-- logo fixed top-left -->
-  <img src="/Assets/Logo.png" alt="Spectra Logo" class="logo">
+  <!-- TOP NAV / HEADER -->
+  <header class="topbar" role="banner">
+    <div class="topbar__left">
+      <a href="/dashboard" class="brand" aria-label="Home">
+        <img src="/Assets/Logo.png" alt="Spectra logo" class="brand__logo">
+        <span class="brand__name">Spectra</span>
+      </a>
+    </div>
 
-  <div class="container">
-    <header>
-      <div class="header-content">
-        <h1>Spectra Profile</h1>
-        <button id="logout-btn" class="logout-button">Logout</button>
+    <div class="topbar__center">
+      <h1 class="page-title">Profile</h1>
+    </div>
+
+    <div class="topbar__right">
+      <nav class="quick-nav" aria-label="quick navigation">
+        <button id="dashboardBtn" class="btn btn--ghost">Dashboard</button>
+        <button id="profileBtn" class="btn btn--ghost btn--active">Profile</button>
+        <button id="friendsBtn" class="btn btn--ghost">Friends</button>
+        <button id="leaderboardBtn" class="btn btn--ghost">Leaderboard</button>
+        <button id="challengesBtn" class="btn btn--ghost">Badges</button>
+      </nav>
+
+      <div class="actions">
+        <button id="refreshButton" class="btn btn--success">Refresh</button>
+        <button id="logoutButton" class="btn btn--primary">Log Out</button>
       </div>
-    </header>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container" role="main">
 
     <div class="profile-content">
       <div class="profile-card" role="region" aria-label="Profile card">
@@ -59,14 +80,11 @@
 
         <div class="profile-actions">
           <button id="edit-profile-btn" class="button">Edit Profile</button>
-          <button id="go-to-dashboard-btn" class="button secondary">Go to Dashboard</button>
-          <button id="view-leaderboard-btn" class="button secondary">View Leaderboard</button>
-          <button id="view-friends-btn" class="button secondary">View Friends</button>
-          <button id="view-badges-btn" class="button secondary">Badges</button>
+          <a href="/footprint" class="button secondary">Activity Footprint</a>
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="/js/profile.js"></script>
 </body>

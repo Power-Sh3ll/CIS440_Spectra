@@ -27,9 +27,9 @@ app.get("/dashboard", (req, res) => {
   res.sendFile(__dirname + "/public/dashboard.html");
 });
 
-// Route to serve profile.html
+// Route to redirect profile to dashboard (profile is now integrated)
 app.get("/profile", (req, res) => {
-  res.sendFile(__dirname + "/public/profile.html");
+  res.redirect("/dashboard#profile");
 });
 
 // Route to serve leaderboard.html
@@ -40,6 +40,11 @@ app.get("/leaderboard", (req, res) => {
 // Route to serve friends.html
 app.get("/friends", (req, res) => {
   res.sendFile(__dirname + "/public/friends.html");
+});
+
+// Route to serve settings.html
+app.get("/settings", (req, res) => {
+  res.sendFile(__dirname + "/public/settings.html");
 });
 //////////////////////////////////////
 //END ROUTES TO SERVE HTML FILES
@@ -327,13 +332,23 @@ app.get("/api/friends", authenticateToken, async (req, res) => {
     const [friendsRows] = await connection.execute(`
       SELECT DISTINCT
         CASE 
-          WHEN user_email = ? THEN friend_email 
-          ELSE user_email 
-        END as friend_email
+          WHEN f.user_email = ? THEN f.friend_email 
+          ELSE f.user_email 
+        END as friend_email,
+        CASE 
+          WHEN f.user_email = ? THEN u2.first_name 
+          ELSE u1.first_name 
+        END as first_name,
+        CASE 
+          WHEN f.user_email = ? THEN u2.last_name 
+          ELSE u1.last_name 
+        END as last_name
       FROM friendships f
-      WHERE (user_email = ? OR friend_email = ?) 
-      AND status = 'accepted'
-    `, [userEmail, userEmail, userEmail]);
+      LEFT JOIN user u1 ON f.user_email = u1.email
+      LEFT JOIN user u2 ON f.friend_email = u2.email
+      WHERE (f.user_email = ? OR f.friend_email = ?) 
+      AND f.status = 'accepted'
+    `, [userEmail, userEmail, userEmail, userEmail, userEmail]);
 
     // Get pending friend requests received (only where user is the recipient)
     const [receivedRows] = await connection.execute(`
@@ -517,6 +532,100 @@ app.delete("/api/friends/remove", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error removing friend." });
+  }
+});
+
+// Route: Cancel sent friend request
+app.delete("/api/friends/cancel", authenticateToken, async (req, res) => {
+  const { friendEmail } = req.body;
+  const userEmail = req.user.email;
+
+  if (!friendEmail) {
+    return res.status(400).json({ message: "Friend email is required." });
+  }
+
+  try {
+    const connection = await createConnection();
+
+    // Remove the pending request (only if current user sent it)
+    const [result] = await connection.execute(`
+      DELETE FROM friendships 
+      WHERE user_email = ? AND friend_email = ? AND status = 'pending'
+    `, [userEmail, friendEmail]);
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Pending friend request not found." });
+    }
+
+    res.status(200).json({ message: "Friend request cancelled successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error cancelling friend request." });
+  }
+});
+
+// Route: Search for users
+app.get("/api/users/search", authenticateToken, async (req, res) => {
+  try {
+    const connection = await createConnection();
+    const userEmail = req.user.email;
+    const searchQuery = req.query.q;
+
+    if (!searchQuery || searchQuery.trim().length < 2) {
+      return res.status(400).json({ message: "Search query must be at least 2 characters long." });
+    }
+
+    const searchTerm = `%${searchQuery.toLowerCase()}%`;
+
+    // Search for users by email, first name, or last name
+    // Exclude the current user and users who are already friends
+    const [userRows] = await connection.execute(`
+      SELECT DISTINCT u.email, u.first_name, u.last_name,
+        CASE 
+          WHEN f.status IS NULL THEN 'none'
+          WHEN f.status = 'pending' AND f.user_email = ? THEN 'sent'
+          WHEN f.status = 'pending' AND f.friend_email = ? THEN 'received'
+          WHEN f.status = 'accepted' THEN 'friends'
+          ELSE 'none'
+        END as relationship_status
+      FROM user u
+      LEFT JOIN friendships f ON (
+        (f.user_email = ? AND f.friend_email = u.email) OR
+        (f.friend_email = ? AND f.user_email = u.email)
+      )
+      WHERE u.email != ? 
+      AND (
+        LOWER(u.email) LIKE ? OR 
+        LOWER(u.first_name) LIKE ? OR 
+        LOWER(u.last_name) LIKE ? OR
+        LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE ?
+      )
+      ORDER BY 
+        CASE 
+          WHEN LOWER(u.email) = LOWER(?) THEN 1
+          WHEN LOWER(u.email) LIKE ? THEN 2
+          WHEN LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE ? THEN 3
+          ELSE 4
+        END,
+        u.first_name, u.last_name
+      LIMIT 20
+    `, [
+      userEmail, userEmail, userEmail, userEmail, userEmail,
+      searchTerm, searchTerm, searchTerm, searchTerm,
+      searchQuery.toLowerCase(), `${searchQuery.toLowerCase()}%`, `%${searchQuery.toLowerCase()}%`
+    ]);
+
+    await connection.end();
+
+    res.status(200).json({
+      users: userRows,
+      query: searchQuery
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error searching for users." });
   }
 });
 
@@ -984,6 +1093,90 @@ app.get("/api/user/badges", authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("GET /api/user/badges error", err);
     res.status(500).json({ message: "Error fetching badges" });
+  }
+});
+
+//////////////////////////////////////
+// USER SETTINGS API ENDPOINTS
+//////////////////////////////////////
+
+// GET user settings
+app.get("/api/settings", authenticateToken, async (req, res) => {
+  try {
+    const connection = await createConnection();
+    const userEmail = req.user.email;
+
+    const [rows] = await connection.execute(
+      "SELECT * FROM user_settings WHERE user_email = ?",
+      [userEmail]
+    );
+
+    await connection.end();
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "No settings found" });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+    res.status(500).json({ message: "Error fetching settings" });
+  }
+});
+
+// POST/PUT user settings (create or update)
+app.post("/api/settings", authenticateToken, async (req, res) => {
+  try {
+    const connection = await createConnection();
+    const userEmail = req.user.email;
+    
+    const {
+      theme = 'light',
+      notifications_enabled = true,
+      email_notifications = true,
+      activity_privacy = 'public',
+      units = 'metric',
+      timezone = 'UTC',
+      language = 'en',
+      weekly_goal_steps = 70000,
+      weekly_goal_distance = 50.0
+    } = req.body;
+
+    // Check if settings exist
+    const [existing] = await connection.execute(
+      "SELECT user_email FROM user_settings WHERE user_email = ?",
+      [userEmail]
+    );
+
+    if (existing.length === 0) {
+      // Create new settings
+      await connection.execute(`
+        INSERT INTO user_settings (
+          user_email, theme, notifications_enabled, email_notifications,
+          activity_privacy, units, timezone, language, 
+          weekly_goal_steps, weekly_goal_distance, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      `, [userEmail, theme, notifications_enabled, email_notifications,
+          activity_privacy, units, timezone, language,
+          weekly_goal_steps, weekly_goal_distance]);
+    } else {
+      // Update existing settings
+      await connection.execute(`
+        UPDATE user_settings SET 
+          theme = ?, notifications_enabled = ?, email_notifications = ?,
+          activity_privacy = ?, units = ?, timezone = ?, language = ?,
+          weekly_goal_steps = ?, weekly_goal_distance = ?, updated_at = NOW()
+        WHERE user_email = ?
+      `, [theme, notifications_enabled, email_notifications,
+          activity_privacy, units, timezone, language,
+          weekly_goal_steps, weekly_goal_distance, userEmail]);
+    }
+
+    await connection.end();
+    res.status(200).json({ message: "Settings saved successfully" });
+  } catch (error) {
+    console.error("Error saving settings:", error);
+    res.status(500).json({ message: "Error saving settings" });
   }
 });
 

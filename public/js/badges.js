@@ -18,8 +18,32 @@
   const earnedEmptyEl = document.getElementById("earned-empty");
   const lockedEmptyEl = document.getElementById("locked-empty");
 
-  document.getElementById("back-to-profile").addEventListener("click", () => {
-    window.location.href = "/profile";
+  // Navigation handlers
+    document.getElementById('dashboardBtn')?.addEventListener('click', () => {
+        window.location.href = '/dashboard';
+    });
+    
+    document.getElementById('friendsBtn')?.addEventListener('click', () => {
+        window.location.href = '/friends';
+    });
+    
+    document.getElementById('leaderboardBtn')?.addEventListener('click', () => {
+        window.location.href = '/leaderboard';
+    });
+    
+    document.getElementById('carbonForestBtn')?.addEventListener('click', () => {
+        window.location.href = '/carbon-forest.html';
+    });
+  
+  // Refresh and logout
+  document.getElementById('refreshButton')?.addEventListener('click', () => {
+    loadBadges();
+  });
+  
+  document.getElementById('logoutButton')?.addEventListener('click', () => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('token');
+    window.location.href = '/';
   });
 
   // ---- ICON MAPPING ----

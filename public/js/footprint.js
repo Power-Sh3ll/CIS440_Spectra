@@ -160,5 +160,30 @@
         if ("swim"  in saved) $("fp-swim").value  = saved.swim;
       }
     } catch {}
+
+    // Navigation event handlers
+    $("dashboardBtn")?.addEventListener("click", () => {
+      window.location.href = "/dashboard";
+    });
+
+    $("friendsBtn")?.addEventListener("click", () => {
+      window.location.href = "/friends";
+    });
+
+    $("leaderboardBtn")?.addEventListener("click", () => {
+      window.location.href = "/leaderboard";
+    });
+
+    $("badgesBtn")?.addEventListener("click", () => {
+      window.location.href = "/badges";
+    });
+
+    // Logout handler
+    $("logoutButton")?.addEventListener("click", () => {
+      localStorage.removeItem("jwtToken");
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      window.location.href = "/logon";
+    });
   });
 })();

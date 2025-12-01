@@ -25,11 +25,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const dashboardBtn = document.getElementById("dashboardBtn");
   const profileBtn   = document.getElementById("profileBtn");
+  const friendsBtn   = document.getElementById("friendsBtn");
+  const challengesBtn = document.getElementById("challengesBtn");
+  const refreshBtn   = document.getElementById("refreshButton");
   const logoutBtn    = document.getElementById("logoutButton");
 
   // --- Nav buttons ---
   dashboardBtn?.addEventListener("click", () => (window.location.href = "/dashboard"));
-  profileBtn  ?.addEventListener("click", () => (window.location.href = "/profile"));
+  friendsBtn  ?.addEventListener("click", () => (window.location.href = "/friends"));
+  challengesBtn?.addEventListener("click", () => (window.location.href = "/badges"));
+  refreshBtn  ?.addEventListener("click", () => fetchLeaderboard());
   logoutBtn   ?.addEventListener("click", () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("token");

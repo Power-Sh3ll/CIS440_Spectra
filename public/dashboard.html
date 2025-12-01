@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
   <!-- TOP NAV / HEADER -->
@@ -23,17 +23,16 @@
     </div>
 
     <div class="topbar__center">
-      <div class="segmented" role="tablist" aria-label="View switch">
-        <button id="activityTab" class="segmented__btn segmented__btn--active" role="tab" aria-selected="true">Fitness</button>
-        <button id="carbonTab" class="segmented__btn" role="tab" aria-selected="false">Carbon</button>
-      </div>
+      <h1 class="page-title">Dashboard</h1>
     </div>
 
     <div class="topbar__right">
       <nav class="quick-nav" aria-label="quick navigation">
-        <button id="profileBtn" class="btn btn--ghost">Profile</button>
+        <button id="dashboardBtn" class="btn btn--ghost btn--active">Dashboard</button>
+        <button id="friendsBtn" class="btn btn--ghost">Friends</button>
         <button id="leaderboardBtn" class="btn btn--ghost">Leaderboard</button>
         <button id="challengesBtn" class="btn btn--ghost">Badges</button>
+        <button id="carbonForestBtn" class="btn btn--ghost">Carbon Forest</button>
       </nav>
 
       <div class="actions">
@@ -45,36 +44,88 @@
 
   <!-- MAIN -->
   <main class="container" role="main">
-    <div class="dashboard-header">
-      <div class="dashboard-header-left">
-        <h1 class="page-title">Daily Overview</h1>
-        <p class="page-subtitle">
-          Switch days to review your fitness and carbon savings.
-        </p>
-      </div>
+    <div class="dashboard-layout">
+      <!-- LEFT SIDE: Profile (always visible) -->
+      <aside class="dashboard-sidebar">
+        <div class="profile-content">
+          <div class="profile-card" role="region" aria-label="Profile card">
+            <div class="profile-top">
+              <div class="avatar-wrap" aria-hidden="false">
+                <img id="avatar-img" class="avatar-img" src="" alt="User avatar" onerror="this.style.display='none'">
+                <div id="avatar-initials" class="avatar-initials" aria-hidden="true">U</div>
+              </div>
 
-      <div class="dashboard-header-right">
-        <div class="dashboard-actions fitness-only">
-          <button id="edit-values-btn" class="btn btn--ghost">Edit Values</button>
-          <button id="edit-goals-btn"  class="btn btn--ghost">Edit Goals</button>
-        </div>
+              <div class="name-block">
+                <h2>Welcome, <span id="user-name">User</span>!</h2>
+                <div class="small-muted" id="user-email-top">Loading...</div>
+              </div>
+            </div>
 
-        <div class="dashboard-date">
-          <label class="date-label" for="dashDatePicker">Select day</label>
-          <div class="date-row">
-            <input type="date" id="dashDatePicker" class="date-input">
-            <button id="dashTodayBtn" class="btn btn--ghost btn--sm">Today</button>
+            <div class="profile-info" id="profile-info">
+              <div class="info-item">
+                <label>Email:</label>
+                <span id="user-email">Loading...</span>
+              </div>
+              <div class="info-item">
+                <label>First Name:</label>
+                <span id="user-first-name">Loading...</span>
+              </div>
+              <div class="info-item">
+                <label>Last Name:</label>
+                <span id="user-last-name">Loading...</span>
+              </div>
+              <div class="info-item">
+                <label>Date of Birth:</label>
+                <span id="user-dob">Loading...</span>
+              </div>
+            </div>
           </div>
-          <p class="date-caption">Viewing: <span id="dashDateDisplay">Today</span></p>
         </div>
-      </div>
-    </div>
+      </aside>
 
-    <!-- status toast -->
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <!-- RIGHT SIDE: Dashboard content with toggle -->
+      <div class="dashboard-main">
+        <!-- Tab selector for Fitness/Carbon -->
+        <div class="dashboard-tabs">
+          <div class="segmented" role="tablist" aria-label="View switch">
+            <button id="activityTab" class="segmented__btn segmented__btn--active" role="tab" aria-selected="true">Fitness</button>
+            <button id="carbonTab" class="segmented__btn" role="tab" aria-selected="false">Carbon</button>
+          </div>
+        </div>
 
-    <!-- FITNESS VIEW (cards) -->
-    <section id="fitnessView" class="cards-grid" aria-live="polite">
+        <!-- Dashboard header -->
+        <div class="dashboard-header">
+          <div class="dashboard-header-left">
+            <h1 class="page-title">Daily Overview</h1>
+            <p class="page-subtitle">
+              Switch days to review your fitness and carbon savings.
+            </p>
+          </div>
+
+          <div class="dashboard-header-right">
+            <div class="dashboard-actions fitness-only">
+              <button id="edit-values-btn" class="btn btn--ghost">Edit Values</button>
+              <button id="edit-goals-btn"  class="btn btn--ghost">Edit Goals</button>
+            </div>
+
+            <div class="dashboard-date">
+              <label class="date-label" for="dashDatePicker">Select day</label>
+              <div class="date-row">
+                <input type="date" id="dashDatePicker" class="date-input">
+                <button id="dashTodayBtn" class="btn btn--ghost btn--sm">Today</button>
+              </div>
+              <p class="date-caption">Viewing: <span id="dashDateDisplay">Today</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- status toast -->
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+        <!-- Content container for smooth transitions -->
+        <div class="dashboard-content">
+          <!-- FITNESS VIEW (cards) -->
+          <section id="fitnessView" class="cards-grid" aria-live="polite">
       <article class="stat-card" id="card-steps">
         <div class="stat-left">
           <div class="stat-icon" aria-hidden="true">👣</div>
@@ -202,6 +253,9 @@
         </article>
       </div>
     </section>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- MODALS -->
@@ -240,5 +294,6 @@
   <script src="/js/datamodel.js"></script>
   <script src="/js/dashboard.js"></script>
   <script src="/js/footprint-dashboard.js"></script>
+  <script src="/js/profile.js"></script>
 </body>
 </html>
